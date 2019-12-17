@@ -1,0 +1,51 @@
+import Form from '@atlaskit/form';
+import Button from '@atlaskit/button';
+import React from 'react';
+import { DatePicker } from '@atlaskit/datetime-picker';
+import Textfield from '@atlaskit/textfield';
+import { Field } from '@atlaskit/form';
+import './JiraPlanningCalendarFilter.css'
+
+class JiraPlanningCalendarFilter extends React.Component<{filterHandler: (data) => void}, {}> {
+
+   render() {
+      return (
+         <Form onSubmit={data => this.props.filterHandler(data)}>
+            {({ formProps, dirty, submitting }) => (
+               <form {...formProps}>
+                  <div className="filter-container">
+                     <div className="filter-item">
+                        <Field label="Start date" name="start-date" defaultValue={new Date().toLocaleDateString()} >
+                           {({ fieldProps, error, valid }) => <DatePicker {...fieldProps} />}
+                        </Field>
+                     </div>
+
+                     <div className="filter-item">
+                        <Field label="User" name="user" defaultValue="" >
+                           {({ fieldProps, error, valid }) => <Textfield {...fieldProps} />}
+                        </Field>
+                     </div>
+
+                     <div className="filter-item">
+                        <Field label="Issue" name="issue" defaultValue="" >
+                           {({ fieldProps, error, valid }) => <Textfield {...fieldProps} />}
+                        </Field>
+                     </div>
+
+                     <div className="submit-button">
+                        <Button
+                           type="submit"
+                           appearance="primary"
+                           isDisabled={!dirty || submitting}>
+                           Submit
+                        </Button>
+                     </div>
+                  </div>
+               </form>
+            )}
+         </Form>
+      )
+   }
+}
+
+export default JiraPlanningCalendarFilter;

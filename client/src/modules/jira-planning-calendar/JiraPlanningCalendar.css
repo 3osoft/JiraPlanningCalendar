@@ -1,0 +1,9 @@
+.container {
+   padding: 1%;
+   background-color: white;
+   overflow-y: hidden;
+}
+
+.roster-container {
+   margin-top: 1%;
+}
