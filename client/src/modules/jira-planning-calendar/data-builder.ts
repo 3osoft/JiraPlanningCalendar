@@ -6,7 +6,7 @@ export class SheetDataBuilder {
   private data = new Array<Array<Cell>>();
   private startDate = new Date(new Date().setDate(new Date().getDate() - 1));
   private endDate = new Date(new Date().setDate(new Date().getDate() + 100));
-
+ 
   constructor() {
     this.initData();
   }
@@ -26,11 +26,22 @@ export class SheetDataBuilder {
         x => x.value === issue.created.toLocaleDateString()
       );
       const userCell = this.data
-        .map(x => x[index])
+        .map(x => x[0])
         .find(x => x.value === issue.assignee.displayName);
-      const project = issue.key;
+
       if (dateCell && userCell) {
-        const cell = this.createCell(dateCell.col, userCell.row, project);
+        const col = dateCell.col;
+        const row = userCell.row;
+        const existingCell = this.data[row][col];
+
+        let newValue;
+        if (existingCell.value) {
+          newValue = `${existingCell.value}\n${issue.key}`;
+        } else {
+          newValue = issue.key
+        }
+
+        const cell = this.createCell(col, row, newValue);
         this.addCell(cell);
       }
     }

@@ -22,7 +22,7 @@ export default function routes(app, addon) {
       var url = 'https://bkjira.atlassian.net/rest/api/latest/users/search';
       var httpClient = addon.httpClient(req);
       
-      httpClient.get(options(url, 'GET'), function (error, response, body) {
+      httpClient.get(options(url), function (error, response, body) {
          if (error) throw new Error(error);
          console.log(
             'Response: ' + response.statusCode + ' ' + response.statusMessage
@@ -36,7 +36,7 @@ export default function routes(app, addon) {
       var url = 'https://bkjira.atlassian.net/rest/api/latest/user/search?query=' + query
       var httpClient = addon.httpClient(req);
 
-      httpClient.get(options(url, 'GET'), function (error, response, body) {
+      httpClient.get(options(url), function (error, response, body) {
          if (error) throw new Error(error);
          console.log(
             'Response: ' + response.statusCode + ' ' + response.statusMessage
@@ -47,7 +47,7 @@ export default function routes(app, addon) {
 
    app.get('/issues', addon.authenticate(), function (req, res) {
       var date = new Date().toISOString().slice(0, 10);
-      var url = 'https://bkjira.atlassian.net/rest/api/latest/search?jql=project=JIR&created>' + date;
+      var url = `https://bkjira.atlassian.net/rest/api/latest/search?jql=${encodeURIComponent(`created>${date}`)}`;
       var httpClient = addon.httpClient(req);
 
       httpClient.get(options(url), function (error, response, body) {

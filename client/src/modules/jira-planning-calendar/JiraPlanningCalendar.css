@@ -1,9 +1,13 @@
 .container {
-   padding: 1%;
-   background-color: white;
-   overflow-y: hidden;
+  padding: 1%;
+  background-color: white;
+  overflow-y: hidden;
 }
 
 .roster-container {
-   margin-top: 1%;
+  margin-top: 1%;
+}
+
+.Spreadsheet td {
+  white-space: pre;
 }
