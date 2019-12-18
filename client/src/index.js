@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Roster from './modules/jira-planning-calendar/JiraPlanningCalendar';
+import Roster from './modules/jira-planning-calendar/components/JiraPlanningCalendar';
 import * as serviceWorker from './serviceWorker';
 import store from './store';
 import { Provider } from 'react-redux';

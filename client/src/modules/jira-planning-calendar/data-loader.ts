@@ -1,8 +1,22 @@
-import { axiosInstance } from "../../axios";
+import { axiosInstance } from '../../axios';
 
-export function getData() {
-  var userPromise = axiosInstance.get("/users");
-  var issuesPromise = axiosInstance.get("/issues");
+export function getData(query?: Query) {
+  let userUrl = '/users';
+  let issuesUrl = '/issues';
 
-  return Promise.all([userPromise, issuesPromise]);
+  if (query) {
+    if (query.userName) {
+      userUrl = `${userUrl}/${query.userName}`;
+    }
+
+    if (query.issue) {
+      issuesUrl = `${issuesUrl}/${query.issue}`;
+    }
+  }
+  return Promise.all([axiosInstance.get(userUrl), axiosInstance.get(issuesUrl)]);
+}
+
+export interface Query {
+  userName?: string;
+  issue?: string;
 }

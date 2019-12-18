@@ -1,13 +1,17 @@
-import { Cell } from "./cell";
-import { User } from "../user/user";
-import { Issue } from "../issue/Issue";
+import { Cell } from "./domain/cell/cell";
+import { Issue } from "./domain/issue/Issue";
+import { User } from "./domain/user/user";
 
 export class SheetDataBuilder {
+  private rowCount: number;
+  private columnCount: number;
   private data = new Array<Array<Cell>>();
   private startDate = new Date(new Date().setDate(new Date().getDate() - 1));
   private endDate = new Date(new Date().setDate(new Date().getDate() + 100));
- 
-  constructor() {
+
+  constructor(rowCount: number, columnCount) {
+    this.rowCount = rowCount;
+    this.columnCount = columnCount;
     this.initData();
   }
 
@@ -20,14 +24,15 @@ export class SheetDataBuilder {
   }
 
   addIssues(issues: Array<Issue>): SheetDataBuilder {
+    const userCells = this.data.map(x => x[0]);
+        
     for (let index = 0; index < issues.length; index++) {
       const issue = issues[index];
       const dateCell = this.data[0].find(
         x => x.value === issue.created.toLocaleDateString()
       );
-      const userCell = this.data
-        .map(x => x[0])
-        .find(x => x.value === issue.assignee.displayName);
+      
+      const userCell = userCells.find(x => x.value === issue.assignee.displayName);
 
       if (dateCell && userCell) {
         const col = dateCell.col;
@@ -61,17 +66,15 @@ export class SheetDataBuilder {
   }
 
   private addCell(cell: Cell): void {
-    const x = cell.row;
-    const y = cell.col;
-    this.data[x][y] = cell;
+    this.data[cell.row][cell.col] = cell;
   }
 
   private initData(): void {
     const dates = this.generateDates(this.startDate, this.endDate);
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < this.rowCount; i++) {
       let row: Array<Cell> = new Array<Cell>();
-      for (let j = 0; j < 100; j++) {
+      for (let j = 0; j < this.columnCount; j++) {
         let cell;
         if (i === 0 && j > 0) {
           cell = { row: i, col: j, value: dates[j] } as Cell;

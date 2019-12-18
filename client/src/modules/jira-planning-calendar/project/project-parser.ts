@@ -1,5 +1,5 @@
-import { Parser } from "../shared/parser";
-import { Project } from "./project";
+import { Parser } from "../../shared/parser";
+import { Project } from "../domain/project/project";
 
 export class ProjectParser implements Parser<Project> {
   fromJson(json: any): Project {

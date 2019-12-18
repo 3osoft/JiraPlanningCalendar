@@ -1,7 +1,7 @@
-import { Parser } from "../shared/parser";
+import { Parser } from "../../../shared/parser";
 import { Issue } from "./Issue";
-import { UserParser } from "./../user/user-parser";
-import { ProjectParser } from "./../project/project-parser";
+import { UserParser } from "../user/user-parser";
+import { ProjectParser } from "../project/project-parser";
 
 export class IssueParser implements Parser<Issue> {
   fromJson(data: any): Issue {

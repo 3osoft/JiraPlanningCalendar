@@ -1,5 +1,5 @@
-import { Parser } from "../shared/parser";
 import { User } from "./user";
+import { Parser } from "../../../shared/parser";
 
 export class UserParser implements Parser<User> {
 

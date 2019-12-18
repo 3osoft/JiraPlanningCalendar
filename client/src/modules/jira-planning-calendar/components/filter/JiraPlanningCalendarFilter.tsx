@@ -15,13 +15,13 @@ class JiraPlanningCalendarFilter extends React.Component<{ filterHandler: (data)
                <form {...formProps}>
                   <div className="filter-container">
                      <div className="filter-item">
-                        <Field label="Start date" name="end-date" defaultValue={new Date().toLocaleDateString()} >
+                        <Field label="Start date" name="startDate" defaultValue={new Date().toLocaleDateString()} >
                            {({ fieldProps, error, valid }) => <DatePicker {...fieldProps} />}
                         </Field>
                      </div>
 
                      <div className="filter-item">
-                        <Field label="End date" name="start-date" defaultValue={new Date().toLocaleDateString()} >
+                        <Field label="End date" name="endDate" defaultValue={new Date().toLocaleDateString()} >
                            {({ fieldProps, error, valid }) => <DatePicker {...fieldProps} />}
                         </Field>
                      </div>
@@ -42,7 +42,7 @@ class JiraPlanningCalendarFilter extends React.Component<{ filterHandler: (data)
                         <Button
                            type="submit"
                            appearance="primary"
-                           isDisabled={!dirty || submitting}>
+                           isDisabled={submitting}>
                            Submit
                         </Button>
                      </div>
