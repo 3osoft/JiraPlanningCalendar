@@ -20,7 +20,7 @@ interface DispatchProps {
 }
 
 type Props = StateToProps & DispatchProps
-class JiraPlanningCalendar extends React.Component<Props, {}> {  
+class JiraPlanningCalendar extends React.Component<Props, {}> {
 
   filterHandler = (data) => {
     this.props.filterData(data);
@@ -30,15 +30,15 @@ class JiraPlanningCalendar extends React.Component<Props, {}> {
     return (
       <div className="container">
         <div>
-          <JiraPlanningCalendarFilter 
+          <JiraPlanningCalendarFilter
             filterHandler={this.filterHandler}
-          />  
+          />
         </div>
         <div className="roster-container">
-          <Spreadsheet data={this.props.data} />  
+          <Spreadsheet data={this.props.data} />
         </div>
       </div>
-     
+
     )
   }
 
@@ -64,7 +64,7 @@ class JiraPlanningCalendar extends React.Component<Props, {}> {
 }
 
 const mapStateToProps = (state) => {
-  return { 
+  return {
     data: state.data
   } as StateToProps
 }

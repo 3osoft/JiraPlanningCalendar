@@ -1,4 +1,4 @@
 export interface Project {
-   key: string;
-   name: string;
+  key: string;
+  name: string;
 }

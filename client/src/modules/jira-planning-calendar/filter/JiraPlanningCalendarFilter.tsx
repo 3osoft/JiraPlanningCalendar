@@ -6,7 +6,7 @@ import Textfield from '@atlaskit/textfield';
 import { Field } from '@atlaskit/form';
 import './JiraPlanningCalendarFilter.css'
 
-class JiraPlanningCalendarFilter extends React.Component<{filterHandler: (data) => void}, {}> {
+class JiraPlanningCalendarFilter extends React.Component<{ filterHandler: (data) => void }, {}> {
 
    render() {
       return (
@@ -15,7 +15,13 @@ class JiraPlanningCalendarFilter extends React.Component<{filterHandler: (data) 
                <form {...formProps}>
                   <div className="filter-container">
                      <div className="filter-item">
-                        <Field label="Start date" name="start-date" defaultValue={new Date().toLocaleDateString()} >
+                        <Field label="Start date" name="end-date" defaultValue={new Date().toLocaleDateString()} >
+                           {({ fieldProps, error, valid }) => <DatePicker {...fieldProps} />}
+                        </Field>
+                     </div>
+
+                     <div className="filter-item">
+                        <Field label="End date" name="start-date" defaultValue={new Date().toLocaleDateString()} >
                            {({ fieldProps, error, valid }) => <DatePicker {...fieldProps} />}
                         </Field>
                      </div>

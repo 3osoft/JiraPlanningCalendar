@@ -1,8 +1,8 @@
-import { axiosInstance } from '../../axios';
+import { axiosInstance } from "../../axios";
 
 export function getData() {
-   var userPromise = axiosInstance.get('/users');
-   var issuesPromise = axiosInstance.get('/issues');
+  var userPromise = axiosInstance.get("/users");
+  var issuesPromise = axiosInstance.get("/issues");
 
-   return Promise.all([userPromise, issuesPromise])
+  return Promise.all([userPromise, issuesPromise]);
 }

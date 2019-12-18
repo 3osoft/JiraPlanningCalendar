@@ -1,7 +1,7 @@
 import { Parser } from "../shared/parser";
 import { User } from "./user";
 
-export class UserParser implements Parser<User> {    
+export class UserParser implements Parser<User> {
 
     fromJson(json: any): User {
         return {
@@ -10,8 +10,8 @@ export class UserParser implements Parser<User> {
             displayName: json.displayName,
             isActive: json.active
         };
-    }    
-    
+    }
+
     toJson(object: User) {
         throw new Error("Method not implemented.");
     }
