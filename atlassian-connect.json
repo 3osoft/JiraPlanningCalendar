@@ -1,7 +1,7 @@
 {
-    "key": "my-app",
-    "name": "My app",
-    "description": "My very first app",
+    "key": "jira-planning-calendar-app",
+    "name": "Jira Planning Calendar",
+    "description": "Jira Planning Calendar",
     "baseUrl": "{{localBaseUrl}}",
     "authentication": {
         "type": "jwt"
@@ -15,23 +15,12 @@
     "modules": {
         "generalPages": [
             {
-                "key": "hello-world-page-jira",
+                "key": "jira-planning-calendar-page-jira",
                 "location": "system.top.navigation.bar",
                 "name": {
                     "value": "Jira Planning Calendar"
                 },
-                "url": "/hello-world",
-                "conditions": [{
-                    "condition": "user_is_logged_in"
-                }]
-            },
-            {
-                "key": "hello-world-page-confluence",
-                "location": "system.header/left",
-                "name": {
-                    "value": "React app"
-                },
-                "url": "/hello-world",
+                "url": "/jira-planning-calendar",
                 "conditions": [{
                     "condition": "user_is_logged_in"
                 }]
