@@ -1,17 +1,20 @@
 import { Cell } from "./domain/cell/cell";
 import { Issue } from "./domain/issue/Issue";
 import { User } from "./domain/user/user";
+import moment from 'moment';
 
 export class SheetDataBuilder {
   private rowCount: number;
-  private columnCount: number;
+  private columnCount: number = 0;
   private data = new Array<Array<Cell>>();
-  private startDate = new Date(new Date().setDate(new Date().getDate() - 1));
-  private endDate = new Date(new Date().setDate(new Date().getDate() + 100));
+  private startDate: Date;
+  private endDate: Date;
 
-  constructor(rowCount: number, columnCount) {
+  constructor(rowCount: number, startDate: Date, endDate: Date) {
+    this.startDate = startDate
+    this.endDate = endDate
     this.rowCount = rowCount;
-    this.columnCount = columnCount;
+    this.prepare();
     this.initData();
   }
 
@@ -25,14 +28,16 @@ export class SheetDataBuilder {
 
   addIssues(issues: Array<Issue>): SheetDataBuilder {
     const userCells = this.data.map(x => x[0]);
-        
+
     for (let index = 0; index < issues.length; index++) {
       const issue = issues[index];
       const dateCell = this.data[0].find(
         x => x.value === issue.created.toLocaleDateString()
       );
-      
-      const userCell = userCells.find(x => x.value === issue.assignee.displayName);
+
+      const userCell = userCells.find(
+        x => x.value === issue.assignee.displayName
+      );
 
       if (dateCell && userCell) {
         const col = dateCell.col;
@@ -43,7 +48,7 @@ export class SheetDataBuilder {
         if (existingCell.value) {
           newValue = `${existingCell.value}\n${issue.key}`;
         } else {
-          newValue = issue.key
+          newValue = issue.key;
         }
 
         const cell = this.createCell(col, row, newValue);
@@ -67,6 +72,15 @@ export class SheetDataBuilder {
 
   private addCell(cell: Cell): void {
     this.data[cell.row][cell.col] = cell;
+  }
+
+  private prepare(): void {
+    var start = moment(this.startDate.setDate(this.startDate.getDate() - 1));
+    var end = moment(this.endDate);
+    this.columnCount = Math.trunc(moment.duration(end.diff(start)).asDays()) + 1;
+    console.log(this.columnCount);
+    console.log(start);
+    console.log(end);
   }
 
   private initData(): void {

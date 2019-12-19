@@ -34,9 +34,9 @@ export default function routes(app, addon) {
       httpGet(addon, req, res, url);
    });
 
-   app.get('/issues', addon.authenticate(), function (req, res) {
-      var date = new Date().toISOString().slice(0, 10);
-      var url = `https://bkjira.atlassian.net/rest/api/latest/search?jql=${encodeURIComponent(`created>${date}`)}`;
+   app.get('/issues/:query', addon.authenticate(), function (req, res) {     
+      var query = req.params.query;
+      var url = `https://bkjira.atlassian.net/rest/api/latest/search?jql=${encodeURIComponent(query)}`;
 
       httpGet(addon, req, res, url);
    });

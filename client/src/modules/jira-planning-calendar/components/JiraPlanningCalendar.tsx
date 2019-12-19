@@ -28,7 +28,9 @@ class JiraPlanningCalendar extends React.Component<Props, {}> {
   filterHandler = async (data) => {
     const query: Query = {
       userName: data.user,
-      issue: data.issue
+      issue: data.issue,
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate)
     }
     
     var result = await this.dataService.loadData(query);

@@ -5,6 +5,7 @@ import { DatePicker } from '@atlaskit/datetime-picker';
 import Textfield from '@atlaskit/textfield';
 import { Field } from '@atlaskit/form';
 import './JiraPlanningCalendarFilter.css'
+import moment from 'moment';
 
 class JiraPlanningCalendarFilter extends React.Component<{ filterHandler: (data) => void }, {}> {
 
@@ -15,13 +16,13 @@ class JiraPlanningCalendarFilter extends React.Component<{ filterHandler: (data)
                <form {...formProps}>
                   <div className="filter-container">
                      <div className="filter-item">
-                        <Field label="Start date" name="startDate" defaultValue={new Date().toLocaleDateString()} >
+                        <Field label="Start date" name="startDate" defaultValue={moment().startOf('isoWeek').format('YYYY-MM-DD')} >
                            {({ fieldProps, error, valid }) => <DatePicker {...fieldProps} />}
                         </Field>
                      </div>
 
                      <div className="filter-item">
-                        <Field label="End date" name="endDate" defaultValue={new Date().toLocaleDateString()} >
+                        <Field label="End date" name="endDate" defaultValue={moment().endOf('isoWeek').format('YYYY-MM-DD')} >
                            {({ fieldProps, error, valid }) => <DatePicker {...fieldProps} />}
                         </Field>
                      </div>
@@ -43,7 +44,7 @@ class JiraPlanningCalendarFilter extends React.Component<{ filterHandler: (data)
                            type="submit"
                            appearance="primary"
                            isDisabled={submitting}>
-                           Submit
+                           Search
                         </Button>
                      </div>
                   </div>
