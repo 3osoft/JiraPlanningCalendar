@@ -34,7 +34,6 @@ class JiraPlanningCalendar extends React.Component<Props, {}> {
     }
     
     var result = await this.dataService.loadData(query);
-
     this.props.fetchData(result);
   }
 
@@ -53,10 +52,9 @@ class JiraPlanningCalendar extends React.Component<Props, {}> {
     )
   }
 
-  componentWillMount() {
-    this.dataService.loadData().then(x => {
-      this.props.fetchData(x);
-    });
+  async componentWillMount() {
+    var result = await this.dataService.loadData();
+    this.props.fetchData(result);
   }
 }
 

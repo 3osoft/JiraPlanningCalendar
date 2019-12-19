@@ -17,10 +17,6 @@ export default function httpGet(addon, req, res, url) {
   };
 
   httpClient.get(options(url), function(error, response, body) {
-    if (error) throw new Error(error);
-    console.log(
-      "Response: " + response.statusCode + " " + response.statusMessage
-    );
-    res.send(body);
+    res.status(response.statusCode).send(body);
   });
 }

@@ -78,9 +78,6 @@ export class SheetDataBuilder {
     var start = moment(this.startDate.setDate(this.startDate.getDate() - 1));
     var end = moment(this.endDate);
     this.columnCount = Math.trunc(moment.duration(end.diff(start)).asDays()) + 1;
-    console.log(this.columnCount);
-    console.log(start);
-    console.log(end);
   }
 
   private initData(): void {

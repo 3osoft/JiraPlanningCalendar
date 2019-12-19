@@ -11,10 +11,15 @@ export class DataService {
   }
 
   async loadData(query: Query = this.defaultQuery) {
-    const result = await getData(query);
-
-    const users = new UserParser().parseArrayFromJson(result[0].data);
-    const issues = new IssueParser().parseArrayFromJson(result[1].data.issues);
+    let result;
+    try {
+      result = await getData(query)
+    } catch(e) {
+      result = null;
+    }
+    
+    const users = result ? new UserParser().parseArrayFromJson(result[0].data) : [];
+    const issues = result ? new IssueParser().parseArrayFromJson(result[1].data.issues) : [];
 
     const startDate = query.startDate;
     const endDate = query.endDate;
