@@ -1,15 +1,18 @@
 import React, { useEffect } from 'react';
 import Spreadsheet from "react-spreadsheet";
-import { fetchData } from '../actions';
+import { fetchDataAction, reorderAction } from '../actions';
 import { useSelector, useDispatch } from 'react-redux';
 import './JiraPlanningCalendar.css'
 import JiraPlanningCalendarFilter from './filter/JiraPlanningCalendarFilter';
 import { DataService } from '../data-service';
 import { Query } from '../data-loader';
+import ListDataViewer from './data-viewer/ListDataViewer';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const JiraPlanningCalendar = () => {
   const dataService = new DataService();
   const data = useSelector(state => state.data);
+
   const dispatch = useDispatch();
 
   const filterHandler = async (data) => {
@@ -21,24 +24,75 @@ const JiraPlanningCalendar = () => {
     }
 
     const result = await filterData(query);
-    dispatch(fetchData(result));
+    dispatch(fetchDataAction(result));
   }
-  
+
   const loadData = async () => {
     return await dataService.loadData();
   }
-  
+
   const filterData = async (query) => {
     return await dataService.loadData(query);
   }
 
   useEffect(() => {
     async function load() {
-      const result = await loadData();      
-      dispatch(fetchData(result));
-    }    
+      // const result = await loadData();
+      const result = [
+        [{ row: 0, col: 0, value: ['Raspberry', 'Apple'], DataViewer: ListDataViewer }, { row: 0, col: 1, value: ['Paprika', 'Onion'], DataViewer: ListDataViewer }],
+        [{ row: 1, col: 0, value: ['Cola', 'Fanta', 'Sprite'], DataViewer: ListDataViewer }]
+      ];
+      dispatch(fetchDataAction(result));
+    }
     load();
   }, []);
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  }
+
+  const move = (source, destination, droppableSource, droppableDestination) => {
+    const sourceClone = Array.from(source);
+    const destClone = Array.from(destination);
+    const [removed] = sourceClone.splice(droppableSource.index, 1);
+
+    destClone.splice(droppableDestination.index, 0, removed);
+
+    const result = {};
+    result[droppableSource.droppableId] = sourceClone;
+    result[droppableDestination.droppableId] = destClone;
+
+    return result;
+  }
+  
+  const getList = (row, col) => {
+    return data[row][col].value;
+  }
+
+  const onDragEnd = (result) => {
+    const { source, destination } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    if (source.droppableId === destination.droppableId) {
+      const cellPosition = JSON.parse(source.droppableId);
+      const row = cellPosition.row;
+      const col = cellPosition.col;
+
+      const items = reorder(getList(row, col), source.index, destination.index);
+
+      dispatch(reorderAction(row, col, items));
+
+    } else {
+
+    }
+
+  }
 
   return (
     <div className="container">
@@ -48,7 +102,10 @@ const JiraPlanningCalendar = () => {
         />
       </div>
       <div className="roster-container">
-        <Spreadsheet data={data} />
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Spreadsheet data={data} />
+          {/* <Spreadsheet data={data} /> */}
+        </DragDropContext>
       </div>
     </div>
   )

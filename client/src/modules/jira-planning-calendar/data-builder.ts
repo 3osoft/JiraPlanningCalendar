@@ -2,37 +2,38 @@ import { Cell } from "./model/cell/cell";
 import { Issue } from "./domain/issue/Issue";
 import { User } from "./domain/user/user";
 import moment from "moment";
+import ListDataViewer from './components/data-viewer/ListDataViewer';
 
 export class SheetDataBuilder {
-  private data = new Array<Array<Cell<any>>>();
-  private users = new Array<Cell<any>>();
-  private issues = new Array<Cell<any>>();
-  private dates = new Array<Cell<any>>();
+  private data = new Array<Array<Cell>>();
+  private users = new Array<Cell>();
+  private issues = new Array<Cell>();
+  private dates = new Array<Cell>();
   private startDate?: Date;
   private endDate?: Date;
 
-  addDates<T>(startDate: Date, endDate: Date) {
+  addDates(startDate: Date, endDate: Date) {
     this.startDate = startDate;
     this.endDate = endDate;
 
     const dates = this.generateDates(startDate, endDate);
 
     for (let index = 0; index < dates.length; index++) {
-      const cell = this.createCell<T>(index + 1, 0, dates[index]);
+      const cell = this.createCell(index + 1, 0, dates[index]);
       this.dates.push(cell);
     }
     return this;
   }
 
-  addUsers<T>(users: Array<User>): SheetDataBuilder {
+  addUsers(users: Array<User>): SheetDataBuilder {
     for (let index = 0; index < users.length; index++) {
-      const cell = this.createCell<T>(0, index + 1, users[index].displayName);
+      const cell = this.createCell(0, index + 1, users[index].displayName);
       this.users.push(cell);
     }
     return this;
   }
 
-  addIssues<T>(issues: Array<Issue>): SheetDataBuilder {
+  addIssues(issues: Array<Issue>): SheetDataBuilder {
     if (!this.users) {
       throw new Error('Issues can not be displayed without users. You need to set the users.')
     }
@@ -41,10 +42,11 @@ export class SheetDataBuilder {
       throw new Error('Issues can not be displayed without dates. You need to set rhe dates.');
     }
     
-    const issuesMap = new Map<{row: number, col: number}, Cell<any>>();
+    const issuesMap = new Map<string, Array<string>>();
 
     for (let index = 0; index < issues.length; index++) {
       const issue = issues[index];
+      
       const dateCell = this.dates.find(
         x => x.value === issue.created.toLocaleDateString()
       );
@@ -56,17 +58,18 @@ export class SheetDataBuilder {
       if (dateCell && userCell) {
         const col = dateCell.col;
         const row = userCell.row;
-        const existingCell = issuesMap.get({row, col});
 
-        let newValue;
-        if (existingCell && existingCell.value) {
-          newValue = `${existingCell.value}\n${issue.key}`;
-        } else {
-          newValue = issue.key;
-        }
+        let data = issuesMap.get(JSON.stringify({row, col}));
 
-        const cell = this.createCell<T>(col, row, newValue);
-        issuesMap.set({row, col}, cell);
+        if (!data) {
+          data = [];
+        } 
+
+        data.push(issue.key)
+        console.log(data);
+        console.log(issuesMap);
+        issuesMap.set(JSON.stringify({row, col}), data);
+        const cell = this.createCell(col, row, data, ListDataViewer);
         this.issues.push(cell);        
       }
     }
@@ -74,7 +77,7 @@ export class SheetDataBuilder {
     return this;
   }
 
-  build(): Array<Array<Cell<any>>> {
+  build(): Array<Array<Cell>> {
     let rowCount: number = 1;
     let columnCount: number = 7;
 
@@ -92,7 +95,7 @@ export class SheetDataBuilder {
     }
 
     for (let i = 0; i < rowCount; i++) {
-      let row: Array<Cell<any>> = new Array<Cell<any>>();
+      let row: Array<Cell> = new Array<Cell>();
       for (let j = 0; j < columnCount; j++) {
         row.push(this.createCell(j, i, ""));
       }
@@ -123,18 +126,16 @@ export class SheetDataBuilder {
     return this.data;
   }
 
-  private createCell<T>(col: number, row: number, value: string): Cell<T> {
-    const dataViewer: T = {} as T;
-
+  private createCell(col: number, row: number, value: any, dataViewer?: any): Cell {
     return {
       col: col,
       row: row,
       value: value,
-      dataViewer: dataViewer
+      DataViewer: dataViewer
     };
   }
 
-  private addCell(cell: Cell<any>): void {
+  private addCell(cell: Cell): void {
     this.data[cell.row][cell.col] = cell;
   }
 
