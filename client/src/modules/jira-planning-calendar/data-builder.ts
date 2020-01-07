@@ -1,101 +1,146 @@
-import { Cell } from "./domain/cell/cell";
+import { Cell } from "./model/cell/cell";
 import { Issue } from "./domain/issue/Issue";
 import { User } from "./domain/user/user";
-import moment from 'moment';
+import moment from "moment";
 
 export class SheetDataBuilder {
-  private rowCount: number;
-  private columnCount: number = 0;
-  private data = new Array<Array<Cell>>();
-  private startDate: Date;
-  private endDate: Date;
+  private data = new Array<Array<Cell<any>>>();
+  private users = new Array<Cell<any>>();
+  private issues = new Array<Cell<any>>();
+  private dates = new Array<Cell<any>>();
+  private startDate?: Date;
+  private endDate?: Date;
 
-  constructor(rowCount: number, startDate: Date, endDate: Date) {
-    this.startDate = startDate
-    this.endDate = endDate
-    this.rowCount = rowCount;
-    this.prepare();
-    this.initData();
-  }
+  addDates<T>(startDate: Date, endDate: Date) {
+    this.startDate = startDate;
+    this.endDate = endDate;
 
-  addUsers(users: Array<User>): SheetDataBuilder {
-    for (let index = 0; index < users.length; index++) {
-      const cell = this.createCell(0, index + 1, users[index].displayName);
-      this.addCell(cell);
+    const dates = this.generateDates(startDate, endDate);
+
+    for (let index = 0; index < dates.length; index++) {
+      const cell = this.createCell<T>(index + 1, 0, dates[index]);
+      this.dates.push(cell);
     }
     return this;
   }
 
-  addIssues(issues: Array<Issue>): SheetDataBuilder {
-    const userCells = this.data.map(x => x[0]);
+  addUsers<T>(users: Array<User>): SheetDataBuilder {
+    for (let index = 0; index < users.length; index++) {
+      const cell = this.createCell<T>(0, index + 1, users[index].displayName);
+      this.users.push(cell);
+    }
+    return this;
+  }
+
+  addIssues<T>(issues: Array<Issue>): SheetDataBuilder {
+    if (!this.users) {
+      throw new Error('Issues can not be displayed without users. You need to set the users.')
+    }
+
+    if (!this.dates) {
+      throw new Error('Issues can not be displayed without dates. You need to set rhe dates.');
+    }
+    
+    const issuesMap = new Map<{row: number, col: number}, Cell<any>>();
 
     for (let index = 0; index < issues.length; index++) {
       const issue = issues[index];
-      const dateCell = this.data[0].find(
+      const dateCell = this.dates.find(
         x => x.value === issue.created.toLocaleDateString()
       );
 
-      const userCell = userCells.find(
+      const userCell = this.users.find(
         x => x.value === issue.assignee.displayName
       );
-
+      
+      console.log('before if')
       if (dateCell && userCell) {
+        console.log('in if')
         const col = dateCell.col;
         const row = userCell.row;
-        const existingCell = this.data[row][col];
+        const existingCell = issuesMap.get({row, col});
 
         let newValue;
-        if (existingCell.value) {
+        if (existingCell && existingCell.value) {
           newValue = `${existingCell.value}\n${issue.key}`;
         } else {
           newValue = issue.key;
         }
 
-        const cell = this.createCell(col, row, newValue);
-        this.addCell(cell);
+        const cell = this.createCell<T>(col, row, newValue);
+        issuesMap.set({row, col}, cell);
+        this.issues.push(cell);        
       }
     }
+    
+    console.log(this.issues);
+
     return this;
   }
 
-  build(): Array<Array<Cell>> {
-    return this.data;
-  }
+  build(): Array<Array<Cell<any>>> {
+    let rowCount: number = 1;
+    let columnCount: number = 7;
 
-  private createCell(col: number, row: number, value: string): Cell {
-    return {
-      col: col,
-      row: row,
-      value: value
-    };
-  }
+    if (this.startDate && this.endDate) {
+      const start = moment(
+        this.startDate.setDate(this.startDate.getDate() - 1)
+      );
+      const end = moment(this.endDate);
 
-  private addCell(cell: Cell): void {
-    this.data[cell.row][cell.col] = cell;
-  }
+      columnCount = Math.trunc(moment.duration(end.diff(start)).asDays()) + 1;
+    }
 
-  private prepare(): void {
-    var start = moment(this.startDate.setDate(this.startDate.getDate() - 1));
-    var end = moment(this.endDate);
-    this.columnCount = Math.trunc(moment.duration(end.diff(start)).asDays()) + 1;
-  }
+    if (this.users) {
+      rowCount = this.users.length + 1;
+    }
 
-  private initData(): void {
-    const dates = this.generateDates(this.startDate, this.endDate);
-
-    for (let i = 0; i < this.rowCount; i++) {
-      let row: Array<Cell> = new Array<Cell>();
-      for (let j = 0; j < this.columnCount; j++) {
-        let cell;
-        if (i === 0 && j > 0) {
-          cell = { row: i, col: j, value: dates[j] } as Cell;
-        } else {
-          cell = { row: i, col: j, value: "" } as Cell;
-        }
-        row.push(cell);
+    for (let i = 0; i < rowCount; i++) {
+      let row: Array<Cell<any>> = new Array<Cell<any>>();
+      for (let j = 0; j < columnCount; j++) {
+        row.push(this.createCell(j, i, ""));
       }
       this.data.push(row);
     }
+
+    // dates
+    if (this.dates) {
+      this.dates.forEach(x => {
+        this.addCell(x);
+      });
+    }
+
+    // users
+    if (this.users) {
+      this.users.forEach(x => {
+        this.addCell(x);
+      });
+    }
+
+    // issues
+    if (this.issues) {
+      this.issues.forEach(x => {
+        this.addCell(x);
+      });
+    }
+
+    console.log(this.issues);
+    return this.data;
+  }
+
+  private createCell<T>(col: number, row: number, value: string): Cell<T> {
+    const dataViewer: T = {} as T;
+
+    return {
+      col: col,
+      row: row,
+      value: value,
+      dataViewer: dataViewer
+    };
+  }
+
+  private addCell(cell: Cell<any>): void {
+    this.data[cell.row][cell.col] = cell;
   }
 
   private generateDates(startDate: Date, endDate: Date) {

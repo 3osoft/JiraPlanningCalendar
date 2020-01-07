@@ -1,6 +1,6 @@
-export interface Cell {
+export interface Cell<T> {
     row: number;
     col: number;
     value: string;
-    DataViewer?: any;
+    dataViewer?: T;
 }

@@ -23,8 +23,9 @@ export class DataService {
 
     const startDate = query.startDate;
     const endDate = query.endDate;
-    const rowCount = users.length + 1;
-    const data = new SheetDataBuilder(rowCount, startDate, endDate)
+
+    const data = new SheetDataBuilder()
+      .addDates(startDate, endDate)
       .addUsers(users)
       .addIssues(issues)
       .build();
