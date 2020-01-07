@@ -1,71 +1,57 @@
-import React, { Dispatch } from 'react';
+import React, { useEffect } from 'react';
 import Spreadsheet from "react-spreadsheet";
 import { fetchData } from '../actions';
-import { AnyAction } from 'redux';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import './JiraPlanningCalendar.css'
 import JiraPlanningCalendarFilter from './filter/JiraPlanningCalendarFilter';
 import { DataService } from '../data-service';
 import { Query } from '../data-loader';
 
-interface StateToProps {
-  data: any
-}
+const JiraPlanningCalendar = () => {
+  const dataService = new DataService();
+  const data = useSelector(state => state.data);
+  const dispatch = useDispatch();
 
-interface DispatchProps {
-  fetchData: (data) => void
-}
-
-type Props = StateToProps & DispatchProps
-class JiraPlanningCalendar extends React.Component<Props, {}> {
-  private dataService: DataService;
-
-  constructor(props: Props) {
-    super(props);
-    this.dataService = new DataService();
-  }
-
-  filterHandler = async (data) => {
+  const filterHandler = async (data) => {
     const query: Query = {
       userName: data.user,
       issue: data.issue,
       startDate: new Date(data.startDate),
       endDate: new Date(data.endDate)
     }
-    
-    var result = await this.dataService.loadData(query);
-    this.props.fetchData(result);
+
+    const result = await filterData(query);
+    dispatch(fetchData(result));
+  }
+  
+  const loadData = async () => {
+    return await dataService.loadData();
+  }
+  
+  const filterData = async (query) => {
+    return await dataService.loadData(query);
   }
 
-  render() {
-    return (
-      <div className="container">
-        <div>
-          <JiraPlanningCalendarFilter
-            filterHandler={this.filterHandler}
-          />
-        </div>
-        <div className="roster-container">
-          <Spreadsheet data={this.props.data} />
-        </div>
+  useEffect(() => {
+    async function load() {
+      const result = await loadData();      
+      dispatch(fetchData(result));
+    }    
+    load();
+  }, []);
+
+  return (
+    <div className="container">
+      <div>
+        <JiraPlanningCalendarFilter
+          filterHandler={filterHandler}
+        />
       </div>
-    )
-  }
-
-  async componentWillMount() {
-    var result = await this.dataService.loadData();
-    this.props.fetchData(result);
-  }
+      <div className="roster-container">
+        <Spreadsheet data={data} />
+      </div>
+    </div>
+  )
 }
 
-const mapStateToProps = (state) => {
-  return {
-    data: state.data
-  } as StateToProps
-}
-
-const mapDispatchProps = (dispatch: Dispatch<AnyAction>) => ({
-  fetchData: (data) => dispatch(fetchData(data))
-} as DispatchProps);
-
-export default connect(mapStateToProps, mapDispatchProps)(JiraPlanningCalendar)
+export default JiraPlanningCalendar;
