@@ -53,9 +53,7 @@ export class SheetDataBuilder {
         x => x.value === issue.assignee.displayName
       );
       
-      console.log('before if')
       if (dateCell && userCell) {
-        console.log('in if')
         const col = dateCell.col;
         const row = userCell.row;
         const existingCell = issuesMap.get({row, col});
@@ -72,8 +70,6 @@ export class SheetDataBuilder {
         this.issues.push(cell);        
       }
     }
-    
-    console.log(this.issues);
 
     return this;
   }
@@ -124,7 +120,6 @@ export class SheetDataBuilder {
       });
     }
 
-    console.log(this.issues);
     return this.data;
   }
 
