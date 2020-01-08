@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react';
 import Spreadsheet from "react-spreadsheet";
-import { fetchDataAction, reorderAction } from '../actions';
+import { fetchDataAction, reorderAction, moveAction } from '../actions';
 import { useSelector, useDispatch } from 'react-redux';
 import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
 import { DataService } from '../data-service';
 import { Query } from '../data-loader';
-import ListDataViewer from './ListDataViewer';
 import { DragDropContext } from 'react-beautiful-dnd';
+import { Cell } from '../model/cell/cell';
 
 const JiraPlanningCalendar = () => {
   const dataService = new DataService();
-  const data = useSelector(state => state.data);
+  const data = useSelector((state: { data: Array<Array<Cell>>; }) => state.data);
 
   const dispatch = useDispatch();
 
@@ -35,25 +35,25 @@ const JiraPlanningCalendar = () => {
   }
 
   useEffect(() => {
-    async function load() {
-      // const result = await loadData();
-      const result = [
-        [{ row: 0, col: 0, value: ['Raspberry', 'Apple'], DataViewer: ListDataViewer }, { row: 0, col: 1, value: ['Paprika', 'Onion'], DataViewer: ListDataViewer }],
-        [{ row: 1, col: 0, value: ['Cola', 'Fanta', 'Sprite'], DataViewer: ListDataViewer }]
-      ];
+    const load = async () => {
+      const result = await loadData();
+      // const result = [
+      //   [{ row: 0, col: 0, value: ['Raspberry', 'Apple'], DataViewer: ListDataViewer }, { row: 0, col: 1, value: ['Paprika', 'Onion'], DataViewer: ListDataViewer }],
+      //   [{ row: 1, col: 0, value: ['Cola', 'Fanta', 'Sprite'], DataViewer: ListDataViewer }]
+      // ];
       dispatch(fetchDataAction(result));
     }
     load();
   }, []);
 
-  const reorder = (list, startIndex, endIndex) => {
+  const reorder = (list: Array<any>, startIndex: number, endIndex: number) => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
     result.splice(endIndex, 0, removed);
     return result;
   }
 
-  const move = (source, destination, droppableSource, droppableDestination) => {
+  const move = (source: Array<any>, destination: Array<any>, droppableSource, droppableDestination) => {
     const sourceClone = Array.from(source);
     const destClone = Array.from(destination);
     const [removed] = sourceClone.splice(droppableSource.index, 1);
@@ -66,12 +66,12 @@ const JiraPlanningCalendar = () => {
 
     return result;
   }
-  
-  const getList = (row, col) => {
+
+  const getList = (row: number, col: number) => {
     return data[row][col].value;
   }
 
-  const onDragEnd = (result) => {
+  const onDragEnd = (result: any) => {
     const { source, destination } = result;
 
     if (!destination) {
@@ -83,14 +83,20 @@ const JiraPlanningCalendar = () => {
       const row = cellPosition.row;
       const col = cellPosition.col;
 
-      const items = reorder(getList(row, col), source.index, destination.index);
+      const result = reorder(getList(row, col), source.index, destination.index);
 
-      dispatch(reorderAction(row, col, items));
-
+      dispatch(reorderAction(row, col, result));
     } else {
+      const sourceCellPosition = JSON.parse(source.droppableId);
+      const destinationCellPosition = JSON.parse(destination.droppableId);
+      const sourceRow = sourceCellPosition.row;
+      const sourceCol = sourceCellPosition.col;
+      const destinationRow = destinationCellPosition.row;
+      const destinationCol = destinationCellPosition.col;
 
+      const result = move(getList(sourceRow, sourceCol), getList(destinationRow, destinationCol), source, destination);
+      dispatch(moveAction(sourceRow, sourceCol, result[source.droppableId], destinationRow, destinationCol, result[destination.droppableId]));
     }
-
   }
 
   const getContainerStyle = () => ({
@@ -99,17 +105,17 @@ const JiraPlanningCalendar = () => {
     paddingLeft: '1.5%',
     paddingRight: '1.5%',
     backgroundColor: 'white',
-  })
+  } as React.CSSProperties)
 
   const getCalendarContainerStyle = () => ({
     marginTop: '1%'
-  })
+  } as React.CSSProperties)
 
   const getSpreadSheetStyle = () => ({
     '.Spreadsheet td': {
       whiteSpace: 'pre'
     }
-  })
+  } as React.CSSProperties)
 
   return (
     <div style={getContainerStyle()}>
@@ -121,7 +127,6 @@ const JiraPlanningCalendar = () => {
       <div style={getCalendarContainerStyle()}>
         <DragDropContext onDragEnd={onDragEnd}>
           <Spreadsheet style={getSpreadSheetStyle} data={data} />
-          {/* <Spreadsheet data={data} /> */}
         </DragDropContext>
       </div>
     </div>

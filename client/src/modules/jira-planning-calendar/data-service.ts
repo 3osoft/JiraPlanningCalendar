@@ -11,16 +11,13 @@ export class DataService {
   }
 
   async loadData(query: Query = this.defaultQuery) {
-    let result;
-    try {
-      result = await getData(query)
-    } catch(e) {
-      result = null;
-    }
-    
-    const users = result ? new UserParser().parseArrayFromJson(result[0].data) : [];
-    const issues = result ? new IssueParser().parseArrayFromJson(result[1].data.issues) : [];
+    const data = await getData(query)
+   
+    const users = new UserParser().parseArrayFromJson(data[0].data);
+    const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
 
-    return new CalendarDataCreator(users, issues, query.startDate, query.endDate).calendarData;
+    const result = new CalendarDataCreator(users, issues, query.startDate, query.endDate).calendarData;
+    console.log(result);
+    return result;
   }
 }

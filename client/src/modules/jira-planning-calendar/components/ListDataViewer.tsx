@@ -1,5 +1,6 @@
 import React from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
+import DragHandlerIcon from '@atlaskit/icon/glyph/drag-handler';
 
 const ListDataViewer = ({ cell }) => {
    const row = cell.row;
@@ -7,19 +8,29 @@ const ListDataViewer = ({ cell }) => {
    const id = JSON.stringify({ row, col });
 
    const getItemStyle = (isDragging, draggableStyle) => ({
+      display: 'flex',
       userSelect: 'none',
-      padding: 3,
-      margin: `0 0 4px 0`,
-
+      padding: '3px',
+      marginTop: '2px',
+      marginBottom: '2px',
       background: isDragging ? 'lightgreen' : 'white',
 
       ...draggableStyle
-   });
+   } as React.CSSProperties);
 
    const getListStyle = isDraggingOver => ({
       background: isDraggingOver ? 'lightblue' : 'white',
       padding: '8px',
-   });
+   } as React.CSSProperties);
+
+   const getDragHandleStyle = () => ({
+      width: '20px',
+      height: '20px'
+   } as React.CSSProperties)
+
+   const handleEventPropagation = (event, isDragging) => {
+     return isDragging  ? undefined : event.stopPropagation();
+   }
 
    return (
       <Droppable droppableId={id}>
@@ -34,13 +45,21 @@ const ListDataViewer = ({ cell }) => {
                      index={index}>
                      {(provided, snapshot) => (
                         <div
+                           onMouseDown={event => handleEventPropagation(event, provided.isDragging)}
+                           onMouseUp={event => handleEventPropagation(event, provided.isDragging)}
+                           onMouseOver={event => handleEventPropagation(event, provided.isDragging)}
+                           onMouseMove={event => handleEventPropagation(event, provided.isDragging)}
                            ref={provided.innerRef}
                            {...provided.draggableProps}
-                           {...provided.dragHandleProps}
+                           
                            style={getItemStyle(
                               snapshot.isDragging,
                               provided.draggableProps.style
                            )}>
+                           <div {...provided.dragHandleProps} style={getDragHandleStyle()}>
+                              <DragHandlerIcon label='drag-handle' />
+                           </div>
+
                            {item}
                         </div>
                      )}
@@ -48,9 +67,8 @@ const ListDataViewer = ({ cell }) => {
                ))}
                {provided.placeholder}
             </div>
-         )
-         }
-      </Droppable >
+         )}
+      </Droppable>
    )
 }
 

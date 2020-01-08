@@ -2,35 +2,40 @@ import { Cell } from "./model/cell/cell";
 import { Issue } from "./domain/issue/Issue";
 import { User } from "./domain/user/user";
 import moment from "moment";
-import ListDataViewer from './components/ListDataViewer';
+import ListDataViewer from "./components/ListDataViewer";
+import ReadOnlyDataViewer from "./components/ReadOnlyDataViewer";
 
 export class CalendarDataCreator {
   private data = new Array<Array<Cell>>();
   private users = new Array<Cell>();
   private issues = new Array<Cell>();
   private dates = new Array<Cell>();
-  private startDate?: Date;
-  private endDate?: Date;
+  private startDate: Date;
+  private endDate: Date;
 
   get calendarData() {
     return this.data;
   }
 
-  constructor(users: Array<User>, issues: Array<Issue>, startDate: Date, endDate: Date) {
-    this.addDates(startDate, endDate);
+  constructor(
+    users: Array<User>,
+    issues: Array<Issue>,
+    startDate: Date,
+    endDate: Date
+  ) {
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.addDates();
     this.addUsers(users);
     this.addIssues(issues);
     this.create();
   }
 
-  private addDates(startDate: Date, endDate: Date): void {
-    this.startDate = startDate;
-    this.endDate = endDate;
-
-    const dates = this.generateDates(startDate, endDate);
+  private addDates(): void {
+    const dates = this.generateDates(new Date(this.startDate), new Date(this.endDate));
 
     for (let index = 0; index < dates.length; index++) {
-      const cell = this.createCell(index + 1, 0, dates[index]);
+      const cell = this.createCell(index + 1, 0, dates[index], ReadOnlyDataViewer);
       this.dates.push(cell);
     }
   }
@@ -43,19 +48,11 @@ export class CalendarDataCreator {
   }
 
   private addIssues(issues: Array<Issue>): void {
-    if (!this.users) {
-      throw new Error('Issues can not be displayed without users. You need to set the users.')
-    }
-
-    if (!this.dates) {
-      throw new Error('Issues can not be displayed without dates. You need to set rhe dates.');
-    }
-    
     const issuesMap = new Map<string, Array<string>>();
 
     for (let index = 0; index < issues.length; index++) {
       const issue = issues[index];
-      
+
       const dateCell = this.dates.find(
         x => x.value === issue.created.toLocaleDateString()
       );
@@ -63,75 +60,65 @@ export class CalendarDataCreator {
       const userCell = this.users.find(
         x => x.value === issue.assignee.displayName
       );
-      
+
       if (dateCell && userCell) {
         const col = dateCell.col;
         const row = userCell.row;
 
-        let data = issuesMap.get(JSON.stringify({row, col}));
+        let data = issuesMap.get(JSON.stringify({ row, col }));
 
         if (!data) {
           data = [];
-        } 
+        }
 
-        data.push(issue.key)
-        console.log(data);
-        console.log(issuesMap);
-        issuesMap.set(JSON.stringify({row, col}), data);
+        data.push(issue.key);
+        issuesMap.set(JSON.stringify({ row, col }), data);
         const cell = this.createCell(col, row, data, ListDataViewer);
-        this.issues.push(cell);        
+        this.issues.push(cell);
       }
     }
   }
 
   private create(): void {
-    let rowCount: number = 1;
-    let columnCount: number = 7;
+    const start = moment(this.startDate.setDate(this.startDate.getDate() - 1));
+    const end = moment(this.endDate);
 
-    if (this.startDate && this.endDate) {
-      const start = moment(
-        this.startDate.setDate(this.startDate.getDate() - 1)
-      );
-      const end = moment(this.endDate);
+    const rowCount = this.users.length + 1;
+    const columnCount = Math.trunc(moment.duration(end.diff(start)).asDays()) + 1;
 
-      columnCount = Math.trunc(moment.duration(end.diff(start)).asDays()) + 1;
-    }
-
-    if (this.users) {
-      rowCount = this.users.length + 1;
-    }
+    console.log(this.startDate);
+    console.log(this.endDate);
 
     for (let i = 0; i < rowCount; i++) {
-      let row: Array<Cell> = new Array<Cell>();
+      this.data[i] = [];
       for (let j = 0; j < columnCount; j++) {
-        row.push(this.createCell(j, i, ""));
+        const emptyCell = this.createCell(j, i, [], ListDataViewer);
+        this.addCell(emptyCell);
       }
-      this.data.push(row);
     }
 
     // dates
-    if (this.dates) {
-      this.dates.forEach(x => {
-        this.addCell(x);
-      });
-    }
+    this.dates.forEach(x => {
+      this.addCell(x);
+    });
 
     // users
-    if (this.users) {
-      this.users.forEach(x => {
-        this.addCell(x);
-      });
-    }
+    this.users.forEach(x => {
+      this.addCell(x);
+    });
 
     // issues
-    if (this.issues) {
-      this.issues.forEach(x => {
-        this.addCell(x);
-      });
-    }
+    this.issues.forEach(x => {
+      this.addCell(x);
+    });
   }
 
-  private createCell(col: number, row: number, value: any, dataViewer?: any): Cell {
+  private createCell(
+    col: number,
+    row: number,
+    value: any,
+    dataViewer?: any
+  ): Cell {
     return {
       col: col,
       row: row,

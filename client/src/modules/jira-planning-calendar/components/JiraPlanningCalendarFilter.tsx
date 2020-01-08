@@ -6,7 +6,7 @@ import Textfield from '@atlaskit/textfield';
 import { Field } from '@atlaskit/form';
 import moment from 'moment';
 
-const JiraPlanningCalendarFilter: React.FC<{ filterHandler: (data) => void }> = (props) => {
+const JiraPlanningCalendarFilter = (props) => {
    const getContainerStyle = () => ({
       display: 'flex',
       flexDirection: 'row',
@@ -22,7 +22,7 @@ const JiraPlanningCalendarFilter: React.FC<{ filterHandler: (data) => void }> = 
       flex: '0 1 auto',
       alignSelf: 'auto',
       marginLeft: pos === 0 ? '0' : '1%'
-   })
+   } as React.CSSProperties)
 
    const getButtonStyle = () => ({
       width: '10%',
@@ -30,7 +30,7 @@ const JiraPlanningCalendarFilter: React.FC<{ filterHandler: (data) => void }> = 
       alignSelf: 'center',
       marginLeft: '1%',
       marginTop: '30px'
-   })
+   } as React.CSSProperties)
 
    const filterHandler = props.filterHandler;
    return (
