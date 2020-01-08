@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import Spreadsheet from "react-spreadsheet";
 import { fetchDataAction, reorderAction } from '../actions';
 import { useSelector, useDispatch } from 'react-redux';
-import './JiraPlanningCalendar.css'
 import JiraPlanningCalendarFilter from './filter/JiraPlanningCalendarFilter';
 import { DataService } from '../data-service';
 import { Query } from '../data-loader';
@@ -94,16 +93,34 @@ const JiraPlanningCalendar = () => {
 
   }
 
+  const getContainerStyle = () => ({
+    paddingTop: '1%',
+    paddingBottom: '1%',
+    paddingLeft: '1.5%',
+    paddingRight: '1.5%',
+    backgroundColor: 'white',
+  })
+
+  const getCalendarContainerStyle = () => ({
+    marginTop: '1%'
+  })
+
+  const getSpreadSheetStyle = () => ({
+    '.Spreadsheet td': {
+      whiteSpace: 'pre'
+    }
+  })
+
   return (
-    <div className="container">
+    <div style={getContainerStyle()}>
       <div>
         <JiraPlanningCalendarFilter
           filterHandler={filterHandler}
         />
       </div>
-      <div className="roster-container">
+      <div style={getCalendarContainerStyle()}>
         <DragDropContext onDragEnd={onDragEnd}>
-          <Spreadsheet data={data} />
+          <Spreadsheet style={getSpreadSheetStyle} data={data} />
           {/* <Spreadsheet data={data} /> */}
         </DragDropContext>
       </div>

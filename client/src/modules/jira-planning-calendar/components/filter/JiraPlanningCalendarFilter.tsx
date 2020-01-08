@@ -4,47 +4,71 @@ import React from 'react';
 import { DatePicker } from '@atlaskit/datetime-picker';
 import Textfield from '@atlaskit/textfield';
 import { Field } from '@atlaskit/form';
-import './JiraPlanningCalendarFilter.css'
 import moment from 'moment';
 
 const JiraPlanningCalendarFilter: React.FC<{ filterHandler: (data) => void }> = (props) => {
+   const getContainerStyle = () => ({
+      display: 'flex',
+      flexDirection: 'row',
+      flexWrap: 'nowrap',
+      justifyContent: 'flex-start',
+      alignItems: 'flex-start',
+      alignContent: 'space-between'
+   } as React.CSSProperties)
+
+   const getFilterItemStyle = (pos: number) => (
+      {
+      width: '25%',
+      flex: '0 1 auto',
+      alignSelf: 'auto',
+      marginLeft: pos === 0 ? '0' : '1%'
+   })
+
+   const getButtonStyle = () => ({
+      width: '10%',
+      flex: '0 1 auto',
+      alignSelf: 'center',
+      marginLeft: '1%',
+      marginTop: '30px'
+   })
+
    const filterHandler = props.filterHandler;
    return (
       <Form onSubmit={data => filterHandler(data)}>
          {({ formProps, dirty, submitting }) => (
             <form {...formProps}>
-               <div className="filter-container">
-                  <div className="filter-item">
+               <div style={getContainerStyle()}>
+                  <div style={getFilterItemStyle(0)}>
                      <Field label="Start date" name="startDate" defaultValue={moment().startOf('isoWeek').format('YYYY-MM-DD')} >
                         {({ fieldProps, error, valid }) => <DatePicker {...fieldProps} />}
                      </Field>
                   </div>
 
-                  <div className="filter-item">
+                  <div style={getFilterItemStyle(1)}>
                      <Field label="End date" name="endDate" defaultValue={moment().endOf('isoWeek').format('YYYY-MM-DD')} >
                         {({ fieldProps, error, valid }) => <DatePicker {...fieldProps} />}
                      </Field>
                   </div>
 
-                  <div className="filter-item">
+                  <div style={getFilterItemStyle(2)}>
                      <Field label="User" name="user" defaultValue="" >
                         {({ fieldProps, error, valid }) => <Textfield {...fieldProps} />}
                      </Field>
                   </div>
 
-                  <div className="filter-item">
+                  <div style={getFilterItemStyle(3)}>
                      <Field label="Issue" name="issue" defaultValue="" >
                         {({ fieldProps, error, valid }) => <Textfield {...fieldProps} />}
                      </Field>
                   </div>
 
-                  <div className="submit-button">
+                  <div style={getButtonStyle()}>
                      <Button
                         type="submit"
                         appearance="primary"
                         isDisabled={submitting}>
                         Search
-                              </Button>
+                     </Button>
                   </div>
                </div>
             </form>

@@ -5,7 +5,7 @@ const initialState = {
   data: []
 };
 
-function sheetReducer(state = initialState, action) {
+function rootReducer(state = initialState, action) {
   switch (action.type) {
     case FETCH_DATA:
       return {
@@ -24,4 +24,4 @@ function sheetReducer(state = initialState, action) {
   }
 }
 
-export default sheetReducer;
+export default rootReducer;
