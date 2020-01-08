@@ -5,22 +5,20 @@ const ListDataViewer = ({ cell }) => {
    const row = cell.row;
    const col = cell.col;
    const id = JSON.stringify({ row, col });
-   const grid = 8;
 
    const getItemStyle = (isDragging, draggableStyle) => ({
       userSelect: 'none',
-      padding: grid * 2,
-      margin: `0 0 ${grid}px 0`,
+      padding: 3,
+      margin: `0 0 4px 0`,
 
-      background: isDragging ? 'lightgreen' : 'grey',
+      background: isDragging ? 'lightgreen' : 'white',
 
       ...draggableStyle
    });
 
    const getListStyle = isDraggingOver => ({
-      background: isDraggingOver ? 'lightblue' : 'lightgrey',
-      padding: grid,
-      width: 250
+      background: isDraggingOver ? 'lightblue' : 'white',
+      padding: '8px',
    });
 
    return (

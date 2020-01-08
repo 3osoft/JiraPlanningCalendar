@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import Spreadsheet from "react-spreadsheet";
 import { fetchDataAction, reorderAction } from '../actions';
 import { useSelector, useDispatch } from 'react-redux';
-import JiraPlanningCalendarFilter from './filter/JiraPlanningCalendarFilter';
+import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
 import { DataService } from '../data-service';
 import { Query } from '../data-loader';
-import ListDataViewer from './data-viewer/ListDataViewer';
+import ListDataViewer from './ListDataViewer';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const JiraPlanningCalendar = () => {

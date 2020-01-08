@@ -2,7 +2,7 @@ import { Cell } from "./model/cell/cell";
 import { Issue } from "./domain/issue/Issue";
 import { User } from "./domain/user/user";
 import moment from "moment";
-import ListDataViewer from './components/data-viewer/ListDataViewer';
+import ListDataViewer from './components/ListDataViewer';
 
 export class CalendarDataCreator {
   private data = new Array<Array<Cell>>();
