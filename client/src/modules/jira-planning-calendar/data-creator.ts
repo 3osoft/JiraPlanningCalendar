@@ -4,7 +4,7 @@ import { User } from "./domain/user/user";
 import moment from "moment";
 import ListDataViewer from './components/data-viewer/ListDataViewer';
 
-export class SheetDataBuilder {
+export class CalendarDataCreator {
   private data = new Array<Array<Cell>>();
   private users = new Array<Cell>();
   private issues = new Array<Cell>();
@@ -12,7 +12,18 @@ export class SheetDataBuilder {
   private startDate?: Date;
   private endDate?: Date;
 
-  addDates(startDate: Date, endDate: Date) {
+  get calendarData() {
+    return this.data;
+  }
+
+  constructor(users: Array<User>, issues: Array<Issue>, startDate: Date, endDate: Date) {
+    this.addDates(startDate, endDate);
+    this.addUsers(users);
+    this.addIssues(issues);
+    this.create();
+  }
+
+  private addDates(startDate: Date, endDate: Date): void {
     this.startDate = startDate;
     this.endDate = endDate;
 
@@ -22,18 +33,16 @@ export class SheetDataBuilder {
       const cell = this.createCell(index + 1, 0, dates[index]);
       this.dates.push(cell);
     }
-    return this;
   }
 
-  addUsers(users: Array<User>): SheetDataBuilder {
+  private addUsers(users: Array<User>): void {
     for (let index = 0; index < users.length; index++) {
       const cell = this.createCell(0, index + 1, users[index].displayName);
       this.users.push(cell);
     }
-    return this;
   }
 
-  addIssues(issues: Array<Issue>): SheetDataBuilder {
+  private addIssues(issues: Array<Issue>): void {
     if (!this.users) {
       throw new Error('Issues can not be displayed without users. You need to set the users.')
     }
@@ -73,11 +82,9 @@ export class SheetDataBuilder {
         this.issues.push(cell);        
       }
     }
-
-    return this;
   }
 
-  build(): Array<Array<Cell>> {
+  private create(): void {
     let rowCount: number = 1;
     let columnCount: number = 7;
 
@@ -122,8 +129,6 @@ export class SheetDataBuilder {
         this.addCell(x);
       });
     }
-
-    return this.data;
   }
 
   private createCell(col: number, row: number, value: any, dataViewer?: any): Cell {

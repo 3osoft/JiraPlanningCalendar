@@ -1,6 +1,6 @@
 import { getData, Query } from "./data-loader";
 import { IssueParser } from "./domain/issue/issue-parser";
-import { SheetDataBuilder } from "./data-builder";
+import { CalendarDataCreator } from "./data-creator";
 import { UserParser } from "./domain/user/user-parser";
 import moment from 'moment';
 
@@ -21,15 +21,6 @@ export class DataService {
     const users = result ? new UserParser().parseArrayFromJson(result[0].data) : [];
     const issues = result ? new IssueParser().parseArrayFromJson(result[1].data.issues) : [];
 
-    const startDate = query.startDate;
-    const endDate = query.endDate;
-
-    const data = new SheetDataBuilder()
-      .addDates(startDate, endDate)
-      .addUsers(users)
-      .addIssues(issues)
-      .build();
-
-    return data;
+    return new CalendarDataCreator(users, issues, query.startDate, query.endDate).calendarData;
   }
 }
