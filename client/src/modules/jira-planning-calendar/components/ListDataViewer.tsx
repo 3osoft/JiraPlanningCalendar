@@ -1,5 +1,5 @@
 import React from 'react';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 
 const ListDataViewer = ({ cell }) => {
    const row = cell.row;
@@ -55,7 +55,3 @@ const ListDataViewer = ({ cell }) => {
 }
 
 export default ListDataViewer;
-
-{/* <div style={{ listStyleType: 'none' }}>
-
-</div> */}

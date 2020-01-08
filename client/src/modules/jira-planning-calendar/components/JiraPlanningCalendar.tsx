@@ -6,7 +6,7 @@ import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
 import { DataService } from '../data-service';
 import { Query } from '../data-loader';
 import ListDataViewer from './ListDataViewer';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
 
 const JiraPlanningCalendar = () => {
   const dataService = new DataService();
