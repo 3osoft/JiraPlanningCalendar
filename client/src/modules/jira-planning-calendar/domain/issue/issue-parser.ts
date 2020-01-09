@@ -25,6 +25,7 @@ export class IssueParser implements Parser<Issue> {
     const result = new Array<Issue>();
     data.forEach(element => {
       result.push(this.fromJson(element));
+      console.log(this.fromJson(element))
     });
     return result;
   }

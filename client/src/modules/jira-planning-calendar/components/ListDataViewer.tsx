@@ -2,7 +2,7 @@ import React from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import DragHandlerIcon from '@atlaskit/icon/glyph/drag-handler';
 import OpenIcon from '@atlaskit/icon/glyph/open';
-import { hideElements } from '../../shared/events';
+import { hideElements } from '../../shared/elements';
 import { JIRA_BROWSE_URL } from '../../../jira';
 
 const ListDataViewer = ({ cell }) => {

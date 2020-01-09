@@ -3,16 +3,13 @@ import Spreadsheet from "react-spreadsheet";
 import { fetchDataAction, reorderAction, moveAction } from '../actions';
 import { useSelector, useDispatch } from 'react-redux';
 import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
-import { DataService } from '../data-service';
-import { Query } from '../data-loader';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { Cell } from '../model/cell/cell';
-import ListDataViewer from './ListDataViewer';
-import { hideElements } from '../../shared/events';
+import { hideElements } from '../../shared/elements';
+import { Query } from '../data-service';
+import LoadingComponent from '../../shared/components/LoadingComponent';
 
 const JiraPlanningCalendar = () => {
-  const dataService = new DataService();
-  const data = useSelector((state: { data: Array<Array<Cell>>; }) => state.data);
+  const state = useSelector(state => state);
 
   const dispatch = useDispatch();
 
@@ -24,26 +21,12 @@ const JiraPlanningCalendar = () => {
       endDate: new Date(data.endDate)
     }
 
-    const result = await filterData(query);
-    dispatch(fetchDataAction(result));
-  }
-
-  const loadData = async () => {
-    return await dataService.loadData();
-  }
-
-  const filterData = async (query) => {
-    return await dataService.loadData(query);
+    dispatch(fetchDataAction(query));
   }
 
   useEffect(() => {
     const load = async () => {
-      const result = await loadData();
-      // const result = [
-      //   [{ row: 0, col: 0, value: ['Raspberry', 'Apple'], DataViewer: ListDataViewer }, { row: 0, col: 1, value: ['Paprika', 'Onion'], DataViewer: ListDataViewer }],
-      //   [{ row: 1, col: 0, value: ['Cola', 'Fanta', 'Sprite'], DataViewer: ListDataViewer }]
-      // ];
-      dispatch(fetchDataAction(result));
+      dispatch(fetchDataAction());
     }
     load();
   }, []);
@@ -70,7 +53,7 @@ const JiraPlanningCalendar = () => {
   }
 
   const getList = (row: number, col: number) => {
-    return data[row][col].value;
+    return state.data[row][col].value;
   }
 
   const onDragEnd = (result: any) => {
@@ -100,7 +83,7 @@ const JiraPlanningCalendar = () => {
       dispatch(moveAction(sourceRow, sourceCol, result[source.droppableId], destinationRow, destinationCol, result[destination.droppableId]));
     }
 
-     hideElements(document.querySelectorAll('.FloatingRect'))
+    hideElements(document.querySelectorAll('.FloatingRect'))
   }
 
   const getContainerStyle = () => ({
@@ -121,6 +104,12 @@ const JiraPlanningCalendar = () => {
     }
   } as React.CSSProperties)
 
+  if (state.isLoading) {
+    return (
+      <LoadingComponent />
+    )
+  }
+
   return (
     <div style={getContainerStyle()}>
       <div>
@@ -130,11 +119,11 @@ const JiraPlanningCalendar = () => {
       </div>
       <div style={getCalendarContainerStyle()}>
         <DragDropContext onDragEnd={onDragEnd}>
-          <Spreadsheet style={getSpreadSheetStyle} data={data} />
+          <Spreadsheet style={getSpreadSheetStyle} data={state.data} />
         </DragDropContext>
       </div>
     </div>
-  )
+  );
 }
 
 export default JiraPlanningCalendar;
