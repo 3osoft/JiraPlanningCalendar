@@ -7,6 +7,8 @@ import { DataService } from '../data-service';
 import { Query } from '../data-loader';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { Cell } from '../model/cell/cell';
+import ListDataViewer from './ListDataViewer';
+import { hideElements } from '../../shared/events';
 
 const JiraPlanningCalendar = () => {
   const dataService = new DataService();
@@ -36,11 +38,11 @@ const JiraPlanningCalendar = () => {
 
   useEffect(() => {
     const load = async () => {
-      const result = await loadData();
-      // const result = [
-      //   [{ row: 0, col: 0, value: ['Raspberry', 'Apple'], DataViewer: ListDataViewer }, { row: 0, col: 1, value: ['Paprika', 'Onion'], DataViewer: ListDataViewer }],
-      //   [{ row: 1, col: 0, value: ['Cola', 'Fanta', 'Sprite'], DataViewer: ListDataViewer }]
-      // ];
+      // const result = await loadData();
+      const result = [
+        [{ row: 0, col: 0, value: ['Raspberry', 'Apple'], DataViewer: ListDataViewer }, { row: 0, col: 1, value: ['Paprika', 'Onion'], DataViewer: ListDataViewer }],
+        [{ row: 1, col: 0, value: ['Cola', 'Fanta', 'Sprite'], DataViewer: ListDataViewer }]
+      ];
       dispatch(fetchDataAction(result));
     }
     load();
@@ -97,6 +99,8 @@ const JiraPlanningCalendar = () => {
       const result = move(getList(sourceRow, sourceCol), getList(destinationRow, destinationCol), source, destination);
       dispatch(moveAction(sourceRow, sourceCol, result[source.droppableId], destinationRow, destinationCol, result[destination.droppableId]));
     }
+
+     hideElements(document.querySelectorAll(".FloatingRect"))
   }
 
   const getContainerStyle = () => ({

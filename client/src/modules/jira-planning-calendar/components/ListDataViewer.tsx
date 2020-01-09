@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef }  from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import DragHandlerIcon from '@atlaskit/icon/glyph/drag-handler';
+import { hideElements } from '../../shared/events';
 
 const ListDataViewer = ({ cell }) => {
    const row = cell.row;
@@ -28,8 +29,14 @@ const ListDataViewer = ({ cell }) => {
       height: '20px'
    } as React.CSSProperties)
 
-   const handleEventPropagation = (event, isDragging) => {
-     return isDragging  ? undefined : event.stopPropagation();
+   const handleEventPropagation = (event) => {
+      event.preventDefault();    
+      event.stopPropagation();
+      event.nativeEvent.stopImmediatePropagation(); 
+
+      if (event.type === 'mousedown') {              
+         hideElements(document.querySelectorAll(".ActiveCell"));
+      }
    }
 
    return (
@@ -45,13 +52,13 @@ const ListDataViewer = ({ cell }) => {
                      index={index}>
                      {(provided, snapshot) => (
                         <div
-                           onMouseDown={event => handleEventPropagation(event, provided.isDragging)}
-                           onMouseUp={event => handleEventPropagation(event, provided.isDragging)}
-                           onMouseOver={event => handleEventPropagation(event, provided.isDragging)}
-                           onMouseMove={event => handleEventPropagation(event, provided.isDragging)}
+                           onMouseDown={event => handleEventPropagation(event)}
+                           onMouseUp={event => handleEventPropagation(event)}
+                           onMouseOver={event => handleEventPropagation(event)}
+                           onMouseMove={event => handleEventPropagation(event)}
                            ref={provided.innerRef}
                            {...provided.draggableProps}
-                           
+
                            style={getItemStyle(
                               snapshot.isDragging,
                               provided.draggableProps.style
