@@ -46,11 +46,7 @@ const ListDataViewer = ({ cell }) => {
    const handleDragAndDrop = (event) => {
       event.preventDefault();
       event.stopPropagation();
-      event.nativeEvent.stopImmediatePropagation();
-
-      if (event.type === 'mousedown') {
-         hideElements(document.querySelectorAll('.ActiveCell'));
-      }
+      event.nativeEvent.stopImmediatePropagation();   
    }
 
    const handleOpenIssue = (item) => {

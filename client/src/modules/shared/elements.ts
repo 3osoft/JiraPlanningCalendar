@@ -1,3 +1,3 @@
-export const hideElements = (elements, classToAdd: string = 'hidden', classToRemove: string = 'selected') => elements.forEach(el => {
-   el.classList.add(classToAdd);
+export const hideElements = (elements) => elements.forEach(el => {
+   el.style.visibility = 'hidden';
  });

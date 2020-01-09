@@ -25,6 +25,17 @@ const JiraPlanningCalendar = () => {
   }
 
   useEffect(() => {
+    if (!state.isLoading) {
+      hideElements(document.querySelectorAll('.FloatingRect'));
+    }
+
+    document.body.addEventListener('mousedown', () => {
+      hideElements(document.querySelectorAll('.ActiveCell'))
+
+    }, true);
+  }, [state.isLoading])
+
+  useEffect(() => {
     const load = async () => {
       dispatch(fetchDataAction());
     }
@@ -82,8 +93,6 @@ const JiraPlanningCalendar = () => {
       const result = move(getList(sourceRow, sourceCol), getList(destinationRow, destinationCol), source, destination);
       dispatch(moveAction(sourceRow, sourceCol, result[source.droppableId], destinationRow, destinationCol, result[destination.droppableId]));
     }
-
-    hideElements(document.querySelectorAll('.FloatingRect'))
   }
 
   const getContainerStyle = () => ({
