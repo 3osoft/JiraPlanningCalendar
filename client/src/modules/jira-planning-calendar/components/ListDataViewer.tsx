@@ -1,14 +1,16 @@
-import React, { useEffect, useRef }  from 'react';
+import React from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import DragHandlerIcon from '@atlaskit/icon/glyph/drag-handler';
+import OpenIcon from '@atlaskit/icon/glyph/open';
 import { hideElements } from '../../shared/events';
+import { JIRA_BROWSE_URL } from '../../../jira';
 
 const ListDataViewer = ({ cell }) => {
    const row = cell.row;
    const col = cell.col;
    const id = JSON.stringify({ row, col });
 
-   const getItemStyle = (isDragging, draggableStyle) => ({
+   const getListItemStyle = (isDragging, draggableStyle) => ({
       display: 'flex',
       userSelect: 'none',
       padding: '3px',
@@ -24,19 +26,35 @@ const ListDataViewer = ({ cell }) => {
       padding: '8px',
    } as React.CSSProperties);
 
-   const getDragHandleStyle = () => ({
+   const getListItemIconStyle = () => ({
       width: '20px',
       height: '20px'
    } as React.CSSProperties)
 
-   const handleEventPropagation = (event) => {
-      event.preventDefault();    
-      event.stopPropagation();
-      event.nativeEvent.stopImmediatePropagation(); 
+   const getListItemOpenIconStyle = () => ({
+      width: '20px',
+      height: '20px',
+      cursor: 'pointer'
+   } as React.CSSProperties)
 
-      if (event.type === 'mousedown') {              
-         hideElements(document.querySelectorAll(".ActiveCell"));
+   const getListItemTextStyle = () => ({
+      marginLeft: '5px',
+      marginRight: '10px'
+
+   } as React.CSSProperties)
+
+   const handleDragAndDrop = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      event.nativeEvent.stopImmediatePropagation();
+
+      if (event.type === 'mousedown') {
+         hideElements(document.querySelectorAll('.ActiveCell'));
       }
+   }
+
+   const handleOpenIssue = (item) => {
+      window.open(`${JIRA_BROWSE_URL}${item}`, '_blank');
    }
 
    return (
@@ -52,22 +70,28 @@ const ListDataViewer = ({ cell }) => {
                      index={index}>
                      {(provided, snapshot) => (
                         <div
-                           onMouseDown={event => handleEventPropagation(event)}
-                           onMouseUp={event => handleEventPropagation(event)}
-                           onMouseOver={event => handleEventPropagation(event)}
-                           onMouseMove={event => handleEventPropagation(event)}
+                           onMouseDown={event => handleDragAndDrop(event)}
+                           onMouseUp={event => handleDragAndDrop(event)}
+                           onMouseOver={event => handleDragAndDrop(event)}
+                           onMouseMove={event => handleDragAndDrop(event)}
                            ref={provided.innerRef}
                            {...provided.draggableProps}
 
-                           style={getItemStyle(
+                           style={getListItemStyle(
                               snapshot.isDragging,
                               provided.draggableProps.style
                            )}>
-                           <div {...provided.dragHandleProps} style={getDragHandleStyle()}>
+                           <div {...provided.dragHandleProps} style={getListItemIconStyle()}>
                               <DragHandlerIcon label='drag-handle' />
                            </div>
 
-                           {item}
+                           <div style={getListItemTextStyle()}>
+                              {item}
+                           </div>
+
+                           <div onClick={() => handleOpenIssue(item)} style={getListItemOpenIconStyle()}>
+                              <OpenIcon label='open-icon' />
+                           </div>
                         </div>
                      )}
                   </Draggable>

@@ -38,11 +38,11 @@ const JiraPlanningCalendar = () => {
 
   useEffect(() => {
     const load = async () => {
-      // const result = await loadData();
-      const result = [
-        [{ row: 0, col: 0, value: ['Raspberry', 'Apple'], DataViewer: ListDataViewer }, { row: 0, col: 1, value: ['Paprika', 'Onion'], DataViewer: ListDataViewer }],
-        [{ row: 1, col: 0, value: ['Cola', 'Fanta', 'Sprite'], DataViewer: ListDataViewer }]
-      ];
+      const result = await loadData();
+      // const result = [
+      //   [{ row: 0, col: 0, value: ['Raspberry', 'Apple'], DataViewer: ListDataViewer }, { row: 0, col: 1, value: ['Paprika', 'Onion'], DataViewer: ListDataViewer }],
+      //   [{ row: 1, col: 0, value: ['Cola', 'Fanta', 'Sprite'], DataViewer: ListDataViewer }]
+      // ];
       dispatch(fetchDataAction(result));
     }
     load();
@@ -100,7 +100,7 @@ const JiraPlanningCalendar = () => {
       dispatch(moveAction(sourceRow, sourceCol, result[source.droppableId], destinationRow, destinationCol, result[destination.droppableId]));
     }
 
-     hideElements(document.querySelectorAll(".FloatingRect"))
+     hideElements(document.querySelectorAll('.FloatingRect'))
   }
 
   const getContainerStyle = () => ({
