@@ -11,7 +11,7 @@ export const fetchDataAction = (query?: Query) => {
       dispatch(fetchDataSuccess(result));
     } catch(error) {
       console.log(error);
-      dispatch(fetchDataFailure(error))
+      dispatch(fetchDataFailure([error]))
     }
   }
 };
@@ -39,9 +39,11 @@ export const fetchDataFailure = (error) => {
 export const reorderAction = (row: number, col: number, data: Array<any>) => {
   return {
     type: REORDER,
-    row,
-    col,
-    data
+    payload: {
+      row,
+      col,
+      data
+    }    
   };
 };
 
@@ -55,11 +57,13 @@ export const moveAction = (
 ) => {
   return {
     type: MOVE,
-    sourRow,
-    sourCol,
-    sourData,
-    destRow,
-    destCol,
-    destData
+    payload: {
+      sourRow,
+      sourCol,
+      sourData,
+      destRow,
+      destCol,
+      destData
+    }
   };
 };

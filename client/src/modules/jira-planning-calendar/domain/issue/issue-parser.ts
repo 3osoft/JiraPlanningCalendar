@@ -1,5 +1,5 @@
 import { Parser } from "../../../shared/parser";
-import { Issue } from "./Issue";
+import { Issue } from "./issue";
 import { UserParser } from "../user/user-parser";
 import { ProjectParser } from "../project/project-parser";
 
@@ -13,7 +13,9 @@ export class IssueParser implements Parser<Issue> {
       assignee: userParser.fromJson(data.fields.assignee),
       creator: userParser.fromJson(data.fields.creator),
       created: new Date(data.fields.created),
-      project: projectParser.fromJson(data.fields.project)
+      project: projectParser.fromJson(data.fields.project),
+      startDate: new Date(data.fields.customfield_10015),
+      dueDate: new Date(data.fields.duedate)
     } as Issue;
   }
 
@@ -25,7 +27,6 @@ export class IssueParser implements Parser<Issue> {
     const result = new Array<Issue>();
     data.forEach(element => {
       result.push(this.fromJson(element));
-      console.log(this.fromJson(element))
     });
     return result;
   }

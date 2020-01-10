@@ -2,7 +2,7 @@ import React from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import DragHandlerIcon from '@atlaskit/icon/glyph/drag-handler';
 import OpenIcon from '@atlaskit/icon/glyph/open';
-import { hideElements } from '../../shared/elements';
+import { hideElements } from '../../shared/dom-element-helper';
 import { JIRA_BROWSE_URL } from '../../../jira';
 
 const ListDataViewer = ({ cell }) => {
@@ -43,12 +43,6 @@ const ListDataViewer = ({ cell }) => {
 
    } as React.CSSProperties)
 
-   const handleDragAndDrop = (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      event.nativeEvent.stopImmediatePropagation();   
-   }
-
    const handleOpenIssue = (item) => {
       window.open(`${JIRA_BROWSE_URL}${item}`, '_blank');
    }
@@ -61,15 +55,11 @@ const ListDataViewer = ({ cell }) => {
                style={getListStyle(snapshot.isDraggingOver)}>
                {cell.value.map((item, index) => (
                   <Draggable
-                     key={item}
-                     draggableId={item}
+                     key={`${cell.id}-${item}`}
+                     draggableId={`${cell.id}-${item}`}
                      index={index}>
                      {(provided, snapshot) => (
                         <div
-                           onMouseDown={event => handleDragAndDrop(event)}
-                           onMouseUp={event => handleDragAndDrop(event)}
-                           onMouseOver={event => handleDragAndDrop(event)}
-                           onMouseMove={event => handleDragAndDrop(event)}
                            ref={provided.innerRef}
                            {...provided.draggableProps}
 

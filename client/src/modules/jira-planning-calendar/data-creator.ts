@@ -1,9 +1,10 @@
 import { Cell } from "./model/cell/cell";
-import { Issue } from "./domain/issue/Issue";
+import { Issue } from "./domain/issue/issue";
 import { User } from "./domain/user/user";
-import moment from "moment";
 import ListDataViewer from "./components/ListDataViewer";
 import ReadOnlyDataViewer from "./components/ReadOnlyDataViewer";
+import { getNumberOfDays, getDateRange } from "../shared/date-helper";
+import { v4 as uuid } from 'uuid';
 
 export class CalendarDataCreator {
   private data = new Array<Array<Cell>>();
@@ -32,10 +33,18 @@ export class CalendarDataCreator {
   }
 
   private addDates(): void {
-    const dates = this.generateDates(new Date(this.startDate), new Date(this.endDate));
+    const dates = getDateRange(
+      new Date(this.startDate),
+      new Date(this.endDate)
+    );
 
     for (let index = 0; index < dates.length; index++) {
-      const cell = this.createCell(index + 1, 0, dates[index], ReadOnlyDataViewer);
+      const cell = this.createCell(
+        index + 1,
+        0,
+        dates[index],
+        ReadOnlyDataViewer
+      );
       this.dates.push(cell);
     }
   }
@@ -53,16 +62,28 @@ export class CalendarDataCreator {
     for (let index = 0; index < issues.length; index++) {
       const issue = issues[index];
 
-      const dateCell = this.dates.find(
-        x => x.value === issue.created.toLocaleDateString()
+      const startDateIndex = this.dates.findIndex(
+        x => x.value === issue.startDate.toLocaleDateString()
       );
+
+      const dueDateIndex = this.dates.findIndex(
+        x => x.value === issue.dueDate.toLocaleDateString()
+      );
+
+      const dateCells = this.dates.slice(startDateIndex, dueDateIndex);
 
       const userCell = this.users.find(
         x => x.value === issue.assignee.displayName
       );
 
-      if (dateCell && userCell) {
-        const col = dateCell.col;
+      if (!userCell) {
+        throw new Error(
+          "No users were found. Without users, issues cannot be displayed"
+        );
+      }
+
+      dateCells.forEach(dateCell => {
+        let col = dateCell.col;
         const row = userCell.row;
 
         let data = issuesMap.get(JSON.stringify({ row, col }));
@@ -73,21 +94,14 @@ export class CalendarDataCreator {
 
         data.push(issue.key);
         issuesMap.set(JSON.stringify({ row, col }), data);
-        const cell = this.createCell(col, row, data, ListDataViewer);
-        this.issues.push(cell);
-      }
+        this.issues.push(this.createCell(col, row, data, ListDataViewer));
+      });
     }
   }
 
   private create(): void {
-    const start = moment(this.startDate.setDate(this.startDate.getDate() - 1));
-    const end = moment(this.endDate);
-
     const rowCount = this.users.length + 1;
-    const columnCount = Math.trunc(moment.duration(end.diff(start)).asDays()) + 1;
-
-    console.log(this.startDate);
-    console.log(this.endDate);
+    const columnCount = getNumberOfDays(this.startDate, this.endDate) + 1;
 
     for (let i = 0; i < rowCount; i++) {
       this.data[i] = [];
@@ -120,6 +134,7 @@ export class CalendarDataCreator {
     dataViewer?: any
   ): Cell {
     return {
+      id: uuid(),
       col: col,
       row: row,
       value: value,
@@ -129,16 +144,5 @@ export class CalendarDataCreator {
 
   private addCell(cell: Cell): void {
     this.data[cell.row][cell.col] = cell;
-  }
-
-  private generateDates(startDate: Date, endDate: Date) {
-    var dateArray = new Array<string>();
-    var currentDate = startDate;
-
-    while (currentDate <= endDate) {
-      dateArray.push(new Date(currentDate).toLocaleDateString());
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-    return dateArray;
   }
 }

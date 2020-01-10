@@ -7,4 +7,6 @@ export interface Issue {
   assignee: User;
   creator: User;
   created: Date;
+  startDate: Date;
+  dueDate: Date;
 }

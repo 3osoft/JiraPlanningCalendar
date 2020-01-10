@@ -4,7 +4,7 @@ import { fetchDataAction, reorderAction, moveAction } from '../actions';
 import { useSelector, useDispatch } from 'react-redux';
 import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
 import { DragDropContext } from 'react-beautiful-dnd';
-import { hideElements } from '../../shared/elements';
+import { hideElements } from '../../shared/dom-element-helper';
 import { Query } from '../data-service';
 import LoadingComponent from '../../shared/components/LoadingComponent';
 

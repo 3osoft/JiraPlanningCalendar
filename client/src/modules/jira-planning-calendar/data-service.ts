@@ -16,35 +16,35 @@ export class DataService {
   };
 
   async loadData(query: Query = this.defaultQuery) {
-    // const data = await this.getData(query);
-    // const users = new UserParser().parseArrayFromJson(data[0].data);
-    // const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
-    // const result = new CalendarDataCreator(users, issues, query.startDate, query.endDate).calendarData;
-
-    const result = [
-      [
-        {
-          row: 0,
-          col: 0,
-          value: ["Raspberry", "Apple"],
-          DataViewer: ListDataViewer
-        },
-        {
-          row: 0,
-          col: 1,
-          value: ["Paprika", "Onion"],
-          DataViewer: ListDataViewer
-        }
-      ],
-      [
-        {
-          row: 1,
-          col: 0,
-          value: ["Cola", "Fanta", "Sprite"],
-          DataViewer: ListDataViewer
-        }
-      ]
-    ];
+    const data = await this.getData(query);
+    const users = new UserParser().parseArrayFromJson(data[0].data);
+    const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
+    const result = new CalendarDataCreator(users, issues, query.startDate, query.endDate).calendarData;
+    console.log(result)
+    // const result = [
+    //   [
+    //     {
+    //       row: 0,
+    //       col: 0,
+    //       value: ["Raspberry", "Apple"],
+    //       DataViewer: ListDataViewer
+    //     },
+    //     {
+    //       row: 0,
+    //       col: 1,
+    //       value: ["Paprika", "Onion"],
+    //       DataViewer: ListDataViewer
+    //     }
+    //   ],
+    //   [
+    //     {
+    //       row: 1,
+    //       col: 0,
+    //       value: ["Cola", "Fanta", "Sprite"],
+    //       DataViewer: ListDataViewer
+    //     }
+    //   ]
+    // ];
     return result;
   }
 

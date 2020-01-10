@@ -1,4 +1,3 @@
-export const FETCH_DATA = 'FETCH_DATA';
 export const REORDER = 'REORDER';
 export const MOVE = 'MOVE';
 export const FETCH_DATA_REQUEST = 'FETCH_DATA_REQUEST';
