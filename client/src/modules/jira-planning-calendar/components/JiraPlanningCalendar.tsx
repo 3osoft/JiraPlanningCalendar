@@ -6,7 +6,8 @@ import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
 import { DragDropContext } from 'react-beautiful-dnd';
 import { hideElements } from '../../shared/dom-element-helper';
 import { Query } from '../data-service';
-import LoadingComponent from '../../shared/components/LoadingComponent';
+import LoadingOverlay from 'react-loading-overlay';
+import BounceLoader from 'react-spinners/BounceLoader'
 
 const JiraPlanningCalendar = () => {
   const state = useSelector(state => state);
@@ -36,10 +37,7 @@ const JiraPlanningCalendar = () => {
   }, [state.isLoading])
 
   useEffect(() => {
-    const load = async () => {
-      dispatch(fetchDataAction());
-    }
-    load();
+    dispatch(fetchDataAction());
   }, []);
 
   const reorder = (list: Array<any>, startIndex: number, endIndex: number) => {
@@ -104,6 +102,7 @@ const JiraPlanningCalendar = () => {
   } as React.CSSProperties)
 
   const getCalendarContainerStyle = () => ({
+    height: '600px',
     marginTop: '1%'
   } as React.CSSProperties)
 
@@ -113,12 +112,6 @@ const JiraPlanningCalendar = () => {
     }
   } as React.CSSProperties)
 
-  if (state.isLoading) {
-    return (
-      <LoadingComponent />
-    )
-  }
-
   return (
     <div style={getContainerStyle()}>
       <div>
@@ -126,11 +119,21 @@ const JiraPlanningCalendar = () => {
           filterHandler={filterHandler}
         />
       </div>
-      <div style={getCalendarContainerStyle()}>
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Spreadsheet style={getSpreadSheetStyle} data={state.data} />
-        </DragDropContext>
-      </div>
+      <LoadingOverlay
+        active={state.isLoading}
+        spinner={<BounceLoader color='#0052CC' />}
+        styles={{
+          overlay: (base) => ({
+            ...base,
+            background: '#EBECF0'
+          }),
+        }}>
+        <div style={getCalendarContainerStyle()}>
+          <DragDropContext onDragEnd={onDragEnd}>
+            <Spreadsheet style={getSpreadSheetStyle} data={state.data} />
+          </DragDropContext>
+        </div>
+      </LoadingOverlay>
     </div>
   );
 }
