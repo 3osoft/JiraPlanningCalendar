@@ -70,6 +70,11 @@ export class CalendarDataCreator {
         x => x.value === issue.dueDate.toLocaleDateString()
       );
       
+      if (dueDateIndex !== -1) {
+        dueDateIndex = dueDateIndex + 1;
+      }
+
+      console.log(dueDateIndex);
       const dateCells = this.dates.slice(startDateIndex, dueDateIndex);
 
       const userCell = this.users.find(
