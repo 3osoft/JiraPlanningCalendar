@@ -1,22 +1,30 @@
 import React from 'react';
-import { Droppable, Draggable } from 'react-beautiful-dnd';
+import { Droppable, Draggable, DraggableStateSnapshot } from 'react-beautiful-dnd';
 import DragHandlerIcon from '@atlaskit/icon/glyph/drag-handler';
 import OpenIcon from '@atlaskit/icon/glyph/open';
-import { hideElements } from '../../shared/dom-element-helper';
 import { JIRA_BROWSE_URL } from '../../../jira';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAction } from './../actions';
+import { MultiDragItem } from '../model/cell/multi-drag-item';
+import { State } from '../state';
 
 const ListDataViewer = ({ cell }) => {
+   const dispatch = useDispatch();
+   const state = useSelector((state: State) => state);
+
    const row = cell.row;
    const col = cell.col;
-   const id = JSON.stringify({ row, col });
+   const droppableId = JSON.stringify({ row, col });
+   const cellId = cell.id;
 
-   const getListItemStyle = (isDragging, draggableStyle) => ({
+   const getListItemStyle = (isDragging, draggableStyle, isSelected) => ({
       display: 'flex',
       userSelect: 'none',
       padding: '3px',
       marginTop: '2px',
       marginBottom: '2px',
       background: isDragging ? 'lightgreen' : 'white',
+      borderStyle: isSelected ? 'dotted' : 'none',
 
       ...draggableStyle
    } as React.CSSProperties);
@@ -47,16 +55,46 @@ const ListDataViewer = ({ cell }) => {
       window.open(`${JIRA_BROWSE_URL}${item}`, '_blank');
    }
 
+   const handleClickForMultiDrag = (event: MouseEvent, item: string) => {
+      if (event.defaultPrevented) {
+         return;
+      }
+
+      if (event.button !== 0) {
+         return;
+      }
+
+      event.preventDefault();
+
+      const multiDragItem = {
+         cellId: cellId,
+         draggableId: `${cellId}-${item}`,
+         value: item
+      } as MultiDragItem;
+
+      toggleSelection(multiDragItem);
+   }
+
+   const toggleSelection = (item: MultiDragItem) => {
+      if (!isSelected(item)) {
+         dispatch(selectAction(item));
+      }
+   }
+
+   const isSelected = (item: MultiDragItem): boolean => {
+      return state.multiDragItems.find(x => x.draggableId === item.draggableId);
+   }
+
    return (
-      <Droppable droppableId={id}>
+      <Droppable droppableId={droppableId}>
          {(provided, snapshot) => (
             <div
                ref={provided.innerRef}
                style={getListStyle(snapshot.isDraggingOver)}>
                {cell.value.map((item, index) => (
                   <Draggable
-                     key={`${cell.id}-${item}`}
-                     draggableId={`${cell.id}-${item}`}
+                     key={`${cellId}-${item}`}
+                     draggableId={`${cellId}-${item}`}
                      index={index}>
                      {(provided, snapshot) => (
                         <div
@@ -65,9 +103,13 @@ const ListDataViewer = ({ cell }) => {
 
                            style={getListItemStyle(
                               snapshot.isDragging,
-                              provided.draggableProps.style
+                              provided.draggableProps.style,
+                              isSelected({cellId: cellId, draggableId: `${cellId}-${item}`, value: item})
                            )}>
-                           <div {...provided.dragHandleProps} style={getListItemIconStyle()}>
+                           <div {...provided.dragHandleProps}
+                              style={getListItemIconStyle()}
+                              onClick={(event: MouseEvent) => handleClickForMultiDrag(event, item)}
+                           >
                               <DragHandlerIcon label='drag-handle' />
                            </div>
 
@@ -76,7 +118,7 @@ const ListDataViewer = ({ cell }) => {
                            </div>
 
                            <div onClick={() => handleOpenIssue(item)} style={getListItemOpenIconStyle()}>
-                              <OpenIcon label='open-icon' />
+                              <OpenIcon label='open' />
                            </div>
                         </div>
                      )}
