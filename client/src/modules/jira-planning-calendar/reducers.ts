@@ -52,7 +52,7 @@ const rootReducer = (state = initialState, action) => {
     case FETCH_DATA_REQUEST:
       return {
         isLoading: true,
-        data: [], 
+        data: [...state.data], 
         errors: []       
       } as State;
     case FETCH_DATA_SUCCESS:

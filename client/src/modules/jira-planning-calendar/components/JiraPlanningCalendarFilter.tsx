@@ -13,7 +13,7 @@ const JiraPlanningCalendarFilter = (props) => {
       flexWrap: 'nowrap',
       justifyContent: 'flex-start',
       alignItems: 'flex-start',
-      alignContent: 'space-between'
+      alignContent: 'space-between',
    } as React.CSSProperties)
 
    const getFilterItemStyle = (pos: number) => (

@@ -125,7 +125,7 @@ const JiraPlanningCalendar = () => {
         styles={{
           overlay: (base) => ({
             ...base,
-            background: '#EBECF0'
+            background: '#D9FFFFFF'
           }),
         }}>
         <div style={getCalendarContainerStyle()}>
