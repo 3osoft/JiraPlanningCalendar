@@ -6,6 +6,7 @@ export class IssuePart {
    issue: Issue;
    actualPart: number;
    totalParts: number;
+   color: string | undefined;
 
    get isStart(): boolean {
       return this.actualPart === 0;
@@ -19,11 +20,12 @@ export class IssuePart {
       return this.totalParts === 1;
    }
 
-   constructor(issue: Issue, actualPart: number, totalParts: number) {
+   constructor(issue: Issue, actualPart: number, totalParts: number, color: string | undefined) {
       this.id = uuid();
       this.issue = issue;
       this.actualPart = actualPart;
-      this.totalParts = totalParts;      
+      this.totalParts = totalParts;     
+      this.color = color 
    }
    
 }

@@ -1,0 +1,17 @@
+.container {
+  padding-top: 1%;
+  padding-bottom: 1%;
+  padding-left: 1.5%;
+  padding-right: 1.5%;
+  background-color: white;
+}
+
+.calendar {
+  margin-top: 1%
+}
+
+.Spreadsheet td {
+  white-space: 'pre';
+  padding: 0;
+  vertical-align: top;
+}

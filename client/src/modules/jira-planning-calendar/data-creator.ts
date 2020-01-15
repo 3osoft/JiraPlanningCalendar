@@ -10,6 +10,7 @@ import {
 } from "../shared/date-helper";
 import { IssuePart } from "./domain/issue/issue-part";
 import { CellType } from "./model/cell/cell-type";
+var randomColor = require('randomcolor');
 
 export class CalendarDataCreator {
   private data = new Array<Array<Cell>>();
@@ -63,13 +64,24 @@ export class CalendarDataCreator {
 
   private addIssues(issues: Array<Issue>): void {
     const issuesMap = new Map<string, Array<IssuePart>>();
+    const colorMap = new Map<string, string | undefined>();
 
     for (let index = 0; index < issues.length; index++) {
       const issue = issues[index];
 
       const issueParts = getDateRange(issue.startDate, issue.dueDate).map(
         (date, index, all) => {
-          return new IssuePart(issue, index, all.length);
+          let color = colorMap.get(issue.key);
+
+          if (!color) {
+            color = randomColor({
+              luminosity: 'dark',
+              format: 'rgba',
+              alpha: 0.7
+           });
+           colorMap.set(issue.key, color);
+          }
+          return new IssuePart(issue, index, all.length, color);
         }
       );
 
@@ -140,7 +152,8 @@ export class CalendarDataCreator {
           i,
           j,
           [],
-          CellType.READONLY
+          CellType.READONLY,
+          ListDataViewer
         );
         this.addCell(emptyCell);
       }

@@ -3,13 +3,14 @@ import Spreadsheet from "react-spreadsheet";
 import { fetchDataAction, reorderAction, moveAction } from '../actions';
 import { useSelector, useDispatch } from 'react-redux';
 import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
-import { DragDropContext } from 'react-beautiful-dnd';
+import { DragDropContext, DropResult, DraggableLocation } from 'react-beautiful-dnd';
 import { hideElements } from '../../shared/dom-element-helper';
 import { Query } from '../data-service';
 import LoadingOverlay from 'react-loading-overlay';
 import BounceLoader from 'react-spinners/BounceLoader'
 import { State } from './../state';
 import { Position } from '../../shared/position';
+import './JiraPlanningCalendar.css';
 
 const JiraPlanningCalendar = () => {
   const state = useSelector((state: State) => state);
@@ -42,11 +43,8 @@ const JiraPlanningCalendar = () => {
     dispatch(fetchDataAction());
   }, []);
 
-  const getList = (position: Position) => {
-    return state.data[position.row][position.col].value;
-  }
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
 
     if (!destination) {
@@ -56,7 +54,7 @@ const JiraPlanningCalendar = () => {
     handleDragAndDrop(source, destination);
   }
 
-  const handleDragAndDrop = (source, destination) => {
+  const handleDragAndDrop = (source: DraggableLocation , destination: DraggableLocation ) => {
     if (source.droppableId === destination.droppableId) {
       const cellPos = JSON.parse(source.droppableId);
       const positon = {
@@ -64,49 +62,33 @@ const JiraPlanningCalendar = () => {
         col: cellPos.col
       } as Position;
 
-      dispatch(
-        reorderAction(positon, source.index, destination.index, getList(positon))
-      );
+      // dispatch(
+      //   reorderAction(positon, source.index, destination.index)
+      // );
     } else {
       const sourCellPos = JSON.parse(source.droppableId);
       const destCellPos = JSON.parse(destination.droppableId);
 
-      const sourcePosition = {
-        row: sourCellPos.row,
+      const issuePart = state.data[sourCellPos.row][sourCellPos.col].value[source.index];
+
+      const sourPos = {
+        row: sourCellPos.row, 
         col: sourCellPos.col
       } as Position;
 
-      const destinationPosition = {
+      const destPos = {
         row: destCellPos.row,
         col: destCellPos.col
       } as Position;
 
       dispatch(
-        moveAction(sourcePosition, destinationPosition, getList(sourcePosition), getList(destinationPosition), source, destination)
+        moveAction(issuePart, sourPos, destPos)
       );
     }
   }
 
-  const getContainerStyle = () => ({
-    paddingTop: '1%',
-    paddingBottom: '1%',
-    paddingLeft: '1.5%',
-    paddingRight: '1.5%',
-    backgroundColor: 'white',
-  } as React.CSSProperties)
-
-  const getCalendarContainerStyle = () => ({
-    marginTop: '1%'
-  } as React.CSSProperties)
-
-  const getSpreadSheetStyle = () => ({
-    '.Spreadsheet td': {
-      whiteSpace: 'pre'
-    }
-  } as React.CSSProperties)
-
   return (
-    <div style={getContainerStyle()}>
+    <div className='container'>
       <div>
         <JiraPlanningCalendarFilter
           filterHandler={filterHandler}
@@ -116,14 +98,14 @@ const JiraPlanningCalendar = () => {
         active={state.isLoading}
         spinner={<BounceLoader color='#0052CC' />}
         styles={{
-          overlay: (base) => ({
+          overlay: (base: any) => ({
             ...base,
             background: '#D9FFFFFF'
           }),
         }}>
-        <div style={getCalendarContainerStyle()}>
+        <div className='calendar'>
           <DragDropContext onDragEnd={onDragEnd}>
-            <Spreadsheet style={getSpreadSheetStyle()} data={state.data} />
+            <Spreadsheet data={state.data} />
           </DragDropContext>
         </div>
       </LoadingOverlay>

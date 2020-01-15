@@ -1,36 +1,28 @@
 import React from 'react';
 import { Droppable, Draggable } from 'react-beautiful-dnd';
-import DragHandlerIcon from '@atlaskit/icon/glyph/drag-handler';
 import OpenIcon from '@atlaskit/icon/glyph/open';
 import { IssuePart } from './../domain/issue/issue-part';
 import { CellType } from '../model/cell/cell-type';
 
 const ListDataViewer = ({ cell }) => {
-
    const row = cell.row;
    const col = cell.col;
    const droppableId = JSON.stringify({ row, col });
 
-   const getListItemStyle = (isDragging, draggableStyle) => ({
+   const getListItemStyle = (isDragging, draggableStyle, color) => ({
       display: 'flex',
       userSelect: 'none',
       padding: '3px',
       marginTop: '2px',
       marginBottom: '2px',
-      background: isDragging ? 'lightgreen' : 'white',
+      background: isDragging ? 'lightgreen' : color,
 
       ...draggableStyle
    } as React.CSSProperties);
 
    const getListStyle = isDraggingOver => ({
       background: isDraggingOver ? 'lightblue' : 'white',
-      padding: '8px',
    } as React.CSSProperties);
-
-   const getListItemIconStyle = () => ({
-      width: '20px',
-      height: '20px'
-   } as React.CSSProperties)
 
    const getListItemOpenIconStyle = () => ({
       width: '20px',
@@ -73,16 +65,13 @@ const ListDataViewer = ({ cell }) => {
                         <div
                            ref={provided.innerRef}
                            {...provided.draggableProps}
+                           {...provided.dragHandleProps}
 
                            style={getListItemStyle(
                               snapshot.isDragging,
-                              provided.draggableProps.style                              
+                              provided.draggableProps.style,
+                              item.color
                            )}>
-                           <div {...provided.dragHandleProps}
-                              style={getListItemIconStyle()}
-                                                         >
-                              <DragHandlerIcon label='drag-handle' />
-                           </div>
 
                            <div style={getListItemTextStyle()}>
                               {item.issue.key}
