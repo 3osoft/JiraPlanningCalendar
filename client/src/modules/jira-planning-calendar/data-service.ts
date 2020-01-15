@@ -5,6 +5,10 @@ import ListDataViewer from "./components/ListDataViewer";
 import { axiosInstance } from "../../axios";
 import moment from "moment";
 import { Cell } from "./model/cell/cell";
+import { Issue } from "./domain/issue/issue";
+import { User } from "./domain/user/user";
+import { Project } from "./domain/project/project";
+import { State } from "./state";
 
 export class DataService {
   private defaultQuery = {
@@ -16,42 +20,42 @@ export class DataService {
       .toDate()
   };
 
+
   async loadData(query: Query = this.defaultQuery) {
     // const data = await this.getData(query);
     // const users = new UserParser().parseArrayFromJson(data[0].data);
     // const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
-    // const result = new CalendarDataCreator(users, issues, query.startDate, query.endDate).calendarData;
-    //console.log(result)
-    const result = [
-      [
-        {
-          id: '1',
-          row: 0,
-          col: 0,
-          value: ["Raspberry", "Apple"],
-          selected: [],
-          DataViewer: ListDataViewer
-        } as Cell,
-        {
-          id: '2',
-          row: 0,
-          col: 1,
-          value: ["Paprika", "Onion"],
-          selected: [],
-          DataViewer: ListDataViewer
-        } as Cell
-      ],
-      [
-        {
-          id: '3',
-          row: 1,
-          col: 0,
-          value: ["Cola", "Fanta", "Sprite"],
-          selected: [],
-          DataViewer: ListDataViewer
-        } as Cell
-      ]
+
+    const users = [
+      {
+        displayName: "Adam Blasko",
+        accountId: "0",
+        accountType: "atlassian",
+        isActive: true
+      } as User,
+      {
+        displayName: "Ben Kusicky",
+        accountId: "1",
+        accountType: "atlassian",
+        isActive: true
+      } as User,
     ];
+
+    const project = {
+      key: "JPC",
+      name: "Jira planning calendar"
+    } as Project;
+
+    const issue1 = new Issue("XAM-5147", project , users[0], users[0], new Date(), new Date(), new Date(new Date().setDate(new Date().getDate() + 2)));
+    const issue2 = new Issue("XAM-5777", project , users[1], users[1], new Date(), new Date(), new Date(new Date().setDate(new Date().getDate() + 1)));
+
+    const result = new CalendarDataCreator(
+      users,
+      [issue1, issue2],
+      query.startDate,
+      query.endDate
+    ).calendarData;
+
     return result;
   }
 

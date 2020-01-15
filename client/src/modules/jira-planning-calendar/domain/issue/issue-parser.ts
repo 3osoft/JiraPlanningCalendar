@@ -8,15 +8,15 @@ export class IssueParser implements Parser<Issue> {
     const userParser = new UserParser();
     const projectParser = new ProjectParser();
 
-    return {
-      key: data.key,
-      assignee: userParser.fromJson(data.fields.assignee),
-      creator: userParser.fromJson(data.fields.creator),
-      created: new Date(data.fields.created),
-      project: projectParser.fromJson(data.fields.project),
-      startDate: new Date(data.fields.customfield_10015),
-      dueDate: new Date(data.fields.duedate)
-    } as Issue;
+    const key = data.key;
+    const assignee = userParser.fromJson(data.fields.assignee);
+    const creator = userParser.fromJson(data.fields.creator);
+    const created = new Date(data.fields.created);
+    const project = projectParser.fromJson(data.fields.project);
+    const startDate = new Date(data.fields.customfield_10015);
+    const dueDate = new Date(data.fields.duedate);
+
+    return new Issue(key, project, assignee, creator, created, startDate, dueDate);
   }
 
   toJson(data: Issue) {

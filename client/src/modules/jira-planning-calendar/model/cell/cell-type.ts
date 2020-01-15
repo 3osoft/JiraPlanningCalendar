@@ -1,0 +1,3 @@
+export enum CellType {
+   READONLY, DROPPABLE, DRAGGABLE, DRAG_AND_DROP
+}

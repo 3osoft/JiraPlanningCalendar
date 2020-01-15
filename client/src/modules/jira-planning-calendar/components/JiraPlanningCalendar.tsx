@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Spreadsheet from "react-spreadsheet";
-import { fetchDataAction, reorderAction, moveAction, unselectAllAction, singleDestinationMultiDragAndDropAction } from '../actions';
+import { fetchDataAction, reorderAction, moveAction } from '../actions';
 import { useSelector, useDispatch } from 'react-redux';
 import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
 import { DragDropContext } from 'react-beautiful-dnd';
@@ -8,10 +8,8 @@ import { hideElements } from '../../shared/dom-element-helper';
 import { Query } from '../data-service';
 import LoadingOverlay from 'react-loading-overlay';
 import BounceLoader from 'react-spinners/BounceLoader'
-import { reorder, move } from '../../shared/drag-and-drop-utils';
 import { State } from './../state';
-import { MultiDragItem } from './../model/cell/multi-drag-item';
-import { Cell } from '../model/cell/cell';
+import { Position } from '../../shared/position';
 
 const JiraPlanningCalendar = () => {
   const state = useSelector((state: State) => state);
@@ -44,15 +42,8 @@ const JiraPlanningCalendar = () => {
     dispatch(fetchDataAction());
   }, []);
 
-  const getList = (row: number, col: number) => {
-    return state.data[row][col].value;
-  }
-
-  const onDragStart = (result: any) => {
-    console.log(result)
-    if (!state.multiDragItems.find(x => x.draggableId === result.draggableId)) {
-     dispatch(unselectAllAction());
-    }
+  const getList = (position: Position) => {
+    return state.data[position.row][position.col].value;
   }
 
   const onDragEnd = (result: any) => {
@@ -62,43 +53,38 @@ const JiraPlanningCalendar = () => {
       return;
     }
 
-    if (state.multiDragItems.length > 0) {
-      handleMultiDrag(source, destination);
-    } else {
-      handleSimpleDrag(source, destination);
-    }
+    handleDragAndDrop(source, destination);
   }
 
-  const handleSimpleDrag = (source, destination) => {
+  const handleDragAndDrop = (source, destination) => {
     if (source.droppableId === destination.droppableId) {
-      const cellPosition = JSON.parse(source.droppableId);
-      const row = cellPosition.row;
-      const col = cellPosition.col;
-      const result = reorder(getList(row, col), source.index, destination.index);
+      const cellPos = JSON.parse(source.droppableId);
+      const positon = {
+        row: cellPos.row,
+        col: cellPos.col
+      } as Position;
 
-      dispatch(reorderAction(row, col, result));
+      dispatch(
+        reorderAction(positon, source.index, destination.index, getList(positon))
+      );
     } else {
-      const sourceCellPosition = JSON.parse(source.droppableId);
-      const destinationCellPosition = JSON.parse(destination.droppableId);
-      const sourceRow = sourceCellPosition.row;
-      const sourceCol = sourceCellPosition.col;
-      const destinationRow = destinationCellPosition.row;
-      const destinationCol = destinationCellPosition.col;
-      const result = move(getList(sourceRow, sourceCol), getList(destinationRow, destinationCol), source, destination);
+      const sourCellPos = JSON.parse(source.droppableId);
+      const destCellPos = JSON.parse(destination.droppableId);
 
-      dispatch(moveAction(sourceRow, sourceCol, result[source.droppableId], destinationRow, destinationCol, result[destination.droppableId]));
+      const sourcePosition = {
+        row: sourCellPos.row,
+        col: sourCellPos.col
+      } as Position;
+
+      const destinationPosition = {
+        row: destCellPos.row,
+        col: destCellPos.col
+      } as Position;
+
+      dispatch(
+        moveAction(sourcePosition, destinationPosition, getList(sourcePosition), getList(destinationPosition), source, destination)
+      );
     }
-  }
-
-  const handleMultiDrag = (source, destination) => {
-    const sourceCellPosition = JSON.parse(source.droppableId);
-      const destinationCellPosition = JSON.parse(destination.droppableId);
-      const sourceRow = sourceCellPosition.row;
-      const sourceCol = sourceCellPosition.col;
-      const destinationRow = destinationCellPosition.row;
-      const destinationCol = destinationCellPosition.col;
-
-    dispatch(singleDestinationMultiDragAndDropAction(sourceRow, sourceCol, destinationRow, destinationCol));
   }
 
   const getContainerStyle = () => ({
@@ -136,7 +122,7 @@ const JiraPlanningCalendar = () => {
           }),
         }}>
         <div style={getCalendarContainerStyle()}>
-          <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+          <DragDropContext onDragEnd={onDragEnd}>
             <Spreadsheet style={getSpreadSheetStyle()} data={state.data} />
           </DragDropContext>
         </div>

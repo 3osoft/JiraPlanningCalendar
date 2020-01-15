@@ -1,30 +1,23 @@
 import React from 'react';
-import { Droppable, Draggable, DraggableStateSnapshot } from 'react-beautiful-dnd';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
 import DragHandlerIcon from '@atlaskit/icon/glyph/drag-handler';
 import OpenIcon from '@atlaskit/icon/glyph/open';
-import { JIRA_BROWSE_URL } from '../../../jira';
-import { useSelector, useDispatch } from 'react-redux';
-import { selectAction } from './../actions';
-import { MultiDragItem } from '../model/cell/multi-drag-item';
-import { State } from '../state';
+import { IssuePart } from './../domain/issue/issue-part';
+import { CellType } from '../model/cell/cell-type';
 
 const ListDataViewer = ({ cell }) => {
-   const dispatch = useDispatch();
-   const state = useSelector((state: State) => state);
 
    const row = cell.row;
    const col = cell.col;
    const droppableId = JSON.stringify({ row, col });
-   const cellId = cell.id;
 
-   const getListItemStyle = (isDragging, draggableStyle, isSelected) => ({
+   const getListItemStyle = (isDragging, draggableStyle) => ({
       display: 'flex',
       userSelect: 'none',
       padding: '3px',
       marginTop: '2px',
       marginBottom: '2px',
       background: isDragging ? 'lightgreen' : 'white',
-      borderStyle: isSelected ? 'dotted' : 'none',
 
       ...draggableStyle
    } as React.CSSProperties);
@@ -51,51 +44,31 @@ const ListDataViewer = ({ cell }) => {
 
    } as React.CSSProperties)
 
-   const handleOpenIssue = (item) => {
-      window.open(`${JIRA_BROWSE_URL}${item}`, '_blank');
+   const handleOpenIssue = (issueUrl: string) => {
+      console.log(issueUrl)
+      window.open(issueUrl, '_blank');
    }
 
-   const handleClickForMultiDrag = (event: MouseEvent, item: string) => {
-      if (event.defaultPrevented) {
-         return;
-      }
-
-      if (event.button !== 0) {
-         return;
-      }
-
-      event.preventDefault();
-
-      const multiDragItem = {
-         cellId: cellId,
-         draggableId: `${cellId}-${item}`,
-         value: item
-      } as MultiDragItem;
-
-      toggleSelection(multiDragItem);
+   const isDraggable = (cellType: CellType): boolean => {
+      return cellType === CellType.DRAGGABLE || cellType === CellType.DRAG_AND_DROP;
    }
 
-   const toggleSelection = (item: MultiDragItem) => {
-      if (!isSelected(item)) {
-         dispatch(selectAction(item));
-      }
-   }
-
-   const isSelected = (item: MultiDragItem): boolean => {
-      return state.multiDragItems.find(x => x.draggableId === item.draggableId);
+   const isDroppable = (cellType: CellType): boolean => {
+      return cellType === CellType.DROPPABLE || cellType === CellType.DRAG_AND_DROP;
    }
 
    return (
-      <Droppable droppableId={droppableId}>
+      <Droppable droppableId={droppableId} isDropDisabled={!isDroppable(cell.cellType)}>
          {(provided, snapshot) => (
             <div
                ref={provided.innerRef}
                style={getListStyle(snapshot.isDraggingOver)}>
-               {cell.value.map((item, index) => (
+               {cell.value.map((item: IssuePart, index: number) => (
                   <Draggable
-                     key={`${cellId}-${item}`}
-                     draggableId={`${cellId}-${item}`}
-                     index={index}>
+                     key={item.id}
+                     draggableId={item.id}
+                     index={index}
+                     isDragDisabled={!isDraggable(cell.cellType)}>
                      {(provided, snapshot) => (
                         <div
                            ref={provided.innerRef}
@@ -103,21 +76,19 @@ const ListDataViewer = ({ cell }) => {
 
                            style={getListItemStyle(
                               snapshot.isDragging,
-                              provided.draggableProps.style,
-                              isSelected({cellId: cellId, draggableId: `${cellId}-${item}`, value: item})
+                              provided.draggableProps.style                              
                            )}>
                            <div {...provided.dragHandleProps}
                               style={getListItemIconStyle()}
-                              onClick={(event: MouseEvent) => handleClickForMultiDrag(event, item)}
-                           >
+                                                         >
                               <DragHandlerIcon label='drag-handle' />
                            </div>
 
                            <div style={getListItemTextStyle()}>
-                              {item}
+                              {item.issue.key}
                            </div>
 
-                           <div onClick={() => handleOpenIssue(item)} style={getListItemOpenIconStyle()}>
+                           <div onClick={() => handleOpenIssue(item.issue.url)} style={getListItemOpenIconStyle()}>
                               <OpenIcon label='open' />
                            </div>
                         </div>

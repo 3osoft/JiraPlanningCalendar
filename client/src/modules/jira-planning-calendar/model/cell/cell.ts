@@ -1,8 +1,10 @@
+import { CellType } from "./cell-type";
+
 export interface Cell {
-    id: string;
     row: number;
     col: number;
     value: any;
     selected?: Array<any>;
     DataViewer?: any;
+    cellType: CellType
 }

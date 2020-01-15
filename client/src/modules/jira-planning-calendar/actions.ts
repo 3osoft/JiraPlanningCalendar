@@ -3,14 +3,11 @@ import {
   MOVE,
   FETCH_DATA_REQUEST,
   FETCH_DATA_SUCCESS,
-  FETCH_DATA_FAILURE,
-  SELECT,
-  UNSELECT_ALL,
-  MULTI_DRAG_SINGLE_DESTINATION
+  FETCH_DATA_FAILURE
 } from "./action-types";
 import { DataService, Query } from "./data-service";
-import { Cell } from "./model/cell/cell";
-import { MultiDragItem } from "./model/cell/multi-drag-item";
+import { reorder, move } from "../shared/drag-and-drop-utils";
+import { Position } from '../shared/position';
 
 export const fetchDataAction = (query?: Query) => {
   return async dispatch => {
@@ -47,66 +44,40 @@ export const fetchDataFailure = error => {
   };
 };
 
-export const reorderAction = (row: number, col: number, data: Array<any>) => {
+export const reorderAction = (
+  pos: Position,
+  sourIndex: number,
+  destIndex: number,
+  list: Array<any>
+) => {
+  const data = reorder(list, sourIndex, destIndex);
   return {
     type: REORDER,
     payload: {
-      row,
-      col,
+      pos,
       data
     }
   };
 };
 
 export const moveAction = (
-  sourRow: number,
-  sourCol: number,
-  sourData: Array<any>,
-  destRow: number,
-  destCol: number,
-  destData: Array<any>
+  sourPos: Position,
+  destPos: Position,
+  sourceList: Array<any>,
+  destinationList: Array<any>,
+  source,
+  destination
 ) => {
+  const result = move(sourceList, destinationList, source, destination);
+  const sourData = result[source.droppableId];
+  const destData = result[destination.droppableId];
   return {
     type: MOVE,
     payload: {
-      sourRow,
-      sourCol,
+      sourPos,
       sourData,
-      destRow,
-      destCol,
+      destPos,
       destData
-    }
-  };
-};
-
-export const selectAction = (multiDragItem: MultiDragItem) => {
-  return {
-    type: SELECT,
-    payload: {
-      multiDragItem
-    }
-  };
-};
-
-export const unselectAllAction = () => {
-  return {
-    type: UNSELECT_ALL
-  };
-};
-
-export const singleDestinationMultiDragAndDropAction = (
-  sourRow: number,
-  sourCol: number,
-  destRow: number,
-  destCol: number
-) => {
-  return {
-    type: MULTI_DRAG_SINGLE_DESTINATION,
-    payload: {
-      sourRow,
-      sourCol,
-      destRow,
-      destCol
     }
   };
 };
