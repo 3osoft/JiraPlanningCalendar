@@ -37,10 +37,6 @@ const ListDataViewer = ({ cell }) => {
 
    } as React.CSSProperties)
 
-   const warningTooltip = (isVisible: boolean) => ({
-      visibility: isVisible ? 'visible' : 'hidden',
-   } as React.CSSProperties)
-
    const handleOpenIssue = (issueUrl: string) => {
       console.log(issueUrl)
       window.open(issueUrl, '_blank');
