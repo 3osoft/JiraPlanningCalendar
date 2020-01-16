@@ -10,6 +10,7 @@ import { Position } from "../shared/position";
 import { IssuePart } from "./domain/issue/issue-part";
 import { Cell } from "./model/cell/cell";
 import { State } from "./state";
+import { sortByLengthAndKey } from './domain/issue/issue-sort';
 
 export const fetchDataAction = (query?: Query) => {
   return async dispatch => {
@@ -120,14 +121,7 @@ export const moveAction = (
       const newCell: Cell = Object.assign({}, cell);
       const item = parts.splice(0, 1)[0];
       newCell.value.push(item);
-      newCell.value = newCell.value.sort((item1: IssuePart, item2: IssuePart) => {
-        let result: number;
-        if (item1.issue.key > item2.issue.key) {
-          return 1;
-        }
-
-        return item1.totalParts < item2.totalParts ? 1 : -1;
-      });
+      newCell.value = newCell.value.sort(sortByLengthAndKey);
     });
 
     dispatch(move(sourCells, destCells))

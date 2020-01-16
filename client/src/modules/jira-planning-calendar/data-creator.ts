@@ -6,23 +6,22 @@ import {
   getNumberOfDays,
   getDateRange,
   isToday,
-  isFuture
+  isFuture,
+  isSame
 } from "../shared/date-helper";
 import { IssuePart } from "./domain/issue/issue-part";
 import { CellType } from "./model/cell/cell-type";
-var randomColor = require('randomcolor');
+import { sortByLengthAndKey } from "./domain/issue/issue-sort";
+var randomColor = require("randomcolor");
 
 export class CalendarDataCreator {
   private data = new Array<Array<Cell>>();
-  private users = new Array<Cell>();
-  private issues = new Array<Cell>();
-  private dates = new Array<Cell>();
+  private users = new Array<User>();
+  private issues = new Array<Issue>();
+  private dates = new Array<Date>();
   private startDate: Date;
   private endDate: Date;
-
-  get calendarData() {
-    return this.data;
-  }
+  private currentDateCol: number;
 
   constructor(
     users: Array<User>,
@@ -32,43 +31,52 @@ export class CalendarDataCreator {
   ) {
     this.startDate = startDate;
     this.endDate = endDate;
+    this.currentDateCol = getNumberOfDays(startDate, new Date());
+    this.dates = getDateRange(this.startDate, this.endDate);
+    this.users = users;
+    this.issues = issues;
+
+    const rowCount = this.users.length + 1;
+    const colCount = getNumberOfDays(this.startDate, this.endDate) + 1;
+    this.init(rowCount, colCount);
+  }
+
+  createData(): Array<Array<Cell>> {
     this.addDates();
-    this.addUsers(users);
-    this.addIssues(issues);
-    this.create();
+    this.addUsers();
+    this.addIssues();
+    return this.data;
   }
 
   private addDates(): void {
-    const dates = getDateRange(
-      new Date(this.startDate),
-      new Date(this.endDate)
-    );
-
-    for (let index = 0; index < dates.length; index++) {
-      const cell = this.createCell(0, index + 1, dates[index], CellType.READONLY);
-      this.dates.push(cell);
-    }
+    this.dates.forEach((date: Date, index: number) => {
+      const cell = this.createCell(
+        0,
+        index + 1,
+        date.toLocaleDateString(),
+        CellType.READONLY
+      );
+      this.addCell(cell);
+    });
   }
 
-  private addUsers(users: Array<User>): void {
-    for (let index = 0; index < users.length; index++) {
+  private addUsers(): void {
+    this.users.forEach((user: User, index: number) => {
       const cell = this.createCell(
         index + 1,
         0,
-        users[index].displayName,
+        user.displayName,
         CellType.READONLY
       );
-      this.users.push(cell);
-    }
+      this.addCell(cell);
+    });
   }
 
-  private addIssues(issues: Array<Issue>): void {
+  private addIssues(): void {
     const issuesMap = new Map<string, Array<IssuePart>>();
     const colorMap = new Map<string, string | undefined>();
 
-    for (let index = 0; index < issues.length; index++) {
-      const issue = issues[index];
-
+    this.issues.forEach((issue: Issue, index: number) => {
       const startDate = issue.startDate ? issue.startDate : issue.created;
       const endDate = issue.dueDate ? issue.dueDate : this.endDate;
 
@@ -78,43 +86,40 @@ export class CalendarDataCreator {
 
           if (!color) {
             color = randomColor({
-              luminosity: 'dark',
-              format: 'rgba',
-              alpha: 0.7
-           });
-           colorMap.set(issue.key, color);
+              luminosity: "light",
+              format: "rgba",
+              alpha: 0.8
+            });
+            colorMap.set(issue.key, color);
           }
           return new IssuePart(issue, index, all.length, color);
         }
       );
 
-      const startDateIndex = this.dates.findIndex(
-        x => x.value === startDate.toLocaleDateString()
+      const startDateIndex = this.dates.findIndex(date =>
+        isSame(date, startDate)
       );
 
-      let dueDateIndex = this.dates.findIndex(
-        x => x.value === endDate.toLocaleDateString()
-      );
+      let dueDateIndex = this.dates.findIndex(date => isSame(date, endDate));
 
       if (dueDateIndex !== -1) {
         dueDateIndex = dueDateIndex + 1;
       }
 
       const dateCells = this.dates.slice(startDateIndex, dueDateIndex);
-
-      const userCell = this.users.find(
-        x => x.value === issue.assignee.displayName
+      const userIndex = this.users.findIndex(
+        (user: User) => user.accountId === issue.assignee.accountId
       );
 
-      if (!userCell) {
+      if (userIndex === -1) {
         throw new Error(
           "No users were found. Without users, issues cannot be displayed"
         );
       }
 
+      const row = userIndex + 1;
       dateCells.forEach((dateCell, idx) => {
-        let col = dateCell.col;
-        const row = userCell.row;
+        const col = startDateIndex + idx + 1;
 
         let data = issuesMap.get(JSON.stringify({ row, col }));
 
@@ -125,57 +130,40 @@ export class CalendarDataCreator {
         data.push(issueParts[idx]);
         issuesMap.set(JSON.stringify({ row, col }), data);
 
-        let cellType: CellType;
-
-        const date = dateCell.value;
-
-        if (isToday(date)) {
-          cellType = CellType.DRAG_AND_DROP;
-        } else if (isFuture(date)) {
-          cellType = CellType.DRAGGABLE;
-        } else {
-          cellType = CellType.READONLY;
-        }
-
-        this.issues.push(
-          this.createCell(row, col, data, cellType, ListDataViewer)
+        const cell: Cell = this.createCell(
+          row,
+          col,
+          data.sort(sortByLengthAndKey),
+          CellType.DRAG_AND_DROP,
+          ListDataViewer
         );
+        this.addCell(cell);
       });
-    }
+    });
   }
 
-  private create(): void {
-    const rowCount = this.users.length + 1;
-    const columnCount = getNumberOfDays(this.startDate, this.endDate) + 1;
-
+  private init(rowCount: number, columnCount: number): void {
     for (let i = 0; i < rowCount; i++) {
       this.data[i] = [];
       for (let j = 0; j < columnCount; j++) {
-        const emptyCell = this.createCell(
-          i,
-          j,
-          [],
-          CellType.READONLY,
-          ListDataViewer
-        );
+        const cellType: CellType = this.getCellType(j);
+
+        const emptyCell = this.createCell(i, j, [], cellType, ListDataViewer);
         this.addCell(emptyCell);
       }
     }
+  }
 
-    // dates
-    this.dates.forEach(x => {
-      this.addCell(x);
-    });
-
-    // users
-    this.users.forEach(x => {
-      this.addCell(x);
-    });
-
-    // issues
-    this.issues.forEach(x => {
-      this.addCell(x);
-    });
+  private getCellType(currentCol: number): CellType {
+    let cellType: CellType;
+    if (this.currentDateCol === currentCol) {
+      cellType = CellType.DRAG_AND_DROP;
+    } else if (this.currentDateCol < currentCol) {
+      cellType = CellType.DRAGGABLE;
+    } else {
+      cellType = CellType.READONLY;
+    }
+    return cellType;
   }
 
   private createCell(
@@ -183,7 +171,7 @@ export class CalendarDataCreator {
     col: number,
     value: any,
     cellType: CellType,
-    dataViewer?: any,
+    dataViewer?: any
   ): Cell {
     return {
       row: row,

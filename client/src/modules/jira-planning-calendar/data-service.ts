@@ -3,6 +3,9 @@ import moment from "moment";
 import { Issue } from "./domain/issue/issue";
 import { User } from "./domain/user/user";
 import { Project } from "./domain/project/project";
+import { UserParser } from "./domain/user/user-parser";
+import { IssueParser } from "./domain/issue/issue-parser";
+import { axiosInstance } from "../../axios";
 
 export class DataService {
   private defaultQuery = {
@@ -15,12 +18,46 @@ export class DataService {
   };
 
   async loadData(query: Query = this.defaultQuery) {
-    // const data = await this.getData(query);
-    // const users = new UserParser().parseArrayFromJson(data[0].data);
-    // const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
-    // return new CalendarDataCreator(users, issues, query.startDate, query.endDate)
+    const data = await this.getData(query);
+    const users = new UserParser().parseArrayFromJson(data[0].data);
+    const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
+    console.log(data[1].data.issues)
+    return new CalendarDataCreator(users, issues, query.startDate, query.endDate).createData();
 
     return testData();
+  }
+
+  private getData(query?: Query) {
+    let userUrl = "/users";
+    let issuesUrl = "/issues";
+  
+    if (query) {
+      if (query.userName) {
+        userUrl = `${userUrl}/${query.userName}`;
+      }
+  
+      var issuesQuery = "";
+      if (query.issue) {
+        issuesQuery = `${issuesQuery}project=${query.issue}&`;
+      }
+  
+      var startDate = moment(query.startDate).format("YYYY-MM-DD");
+      issuesQuery = `${issuesQuery}created>=${startDate}&`;
+  
+      var endDate = moment(query.endDate).format("YYYY-MM-DD");
+      issuesQuery = `${issuesQuery}created<=${endDate}&`;
+  
+      if (issuesQuery.endsWith("&")) {
+        issuesQuery = issuesQuery.slice(0, -1);
+      }
+  
+      issuesUrl = `${issuesUrl}/${issuesQuery}`;
+    }
+  
+    return Promise.all([
+      axiosInstance.get(userUrl),
+      axiosInstance.get(issuesUrl)
+    ]);
   }
 }
 
@@ -77,9 +114,10 @@ const testData = () => {
     [issue1, issue2],
     startDate,
     endDate
-  ).calendarData;
-  return result;
+  )
+  return result.createData();
 };
+
 
 export interface Query {
   userName?: string;
