@@ -69,7 +69,10 @@ export class CalendarDataCreator {
     for (let index = 0; index < issues.length; index++) {
       const issue = issues[index];
 
-      const issueParts = getDateRange(issue.startDate, issue.dueDate).map(
+      const startDate = issue.startDate ? issue.startDate : issue.created;
+      const endDate = issue.dueDate ? issue.dueDate : this.endDate;
+
+      const issueParts = getDateRange(startDate, endDate).map(
         (date, index, all) => {
           let color = colorMap.get(issue.key);
 
@@ -86,11 +89,11 @@ export class CalendarDataCreator {
       );
 
       const startDateIndex = this.dates.findIndex(
-        x => x.value === issue.startDate.toLocaleDateString()
+        x => x.value === startDate.toLocaleDateString()
       );
 
       let dueDateIndex = this.dates.findIndex(
-        x => x.value === issue.dueDate.toLocaleDateString()
+        x => x.value === endDate.toLocaleDateString()
       );
 
       if (dueDateIndex !== -1) {

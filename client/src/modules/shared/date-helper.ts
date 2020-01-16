@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment";;
 
 export const  getDateRange = (startDate: Date, endDate: Date): Array<string> => {
    var dateArray = new Array<string>();

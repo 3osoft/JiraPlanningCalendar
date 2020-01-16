@@ -3,6 +3,7 @@ import { Droppable, Draggable } from 'react-beautiful-dnd';
 import OpenIcon from '@atlaskit/icon/glyph/open';
 import { IssuePart } from './../domain/issue/issue-part';
 import { CellType } from '../model/cell/cell-type';
+import Tooltip from '../../shared/components/Tooltip';
 
 const ListDataViewer = ({ cell }) => {
    const row = cell.row;
@@ -13,20 +14,20 @@ const ListDataViewer = ({ cell }) => {
       display: 'flex',
       userSelect: 'none',
       padding: '3px',
-      marginTop: '2px',
-      marginBottom: '2px',
       background: isDragging ? 'lightgreen' : color,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
 
       ...draggableStyle
    } as React.CSSProperties);
 
    const getListStyle = isDraggingOver => ({
+      height: '100%',
       background: isDraggingOver ? 'lightblue' : 'white',
    } as React.CSSProperties);
 
-   const getListItemOpenIconStyle = () => ({
-      width: '20px',
-      height: '20px',
+   const getListItemIconStyle = () => ({
       cursor: 'pointer'
    } as React.CSSProperties)
 
@@ -34,6 +35,10 @@ const ListDataViewer = ({ cell }) => {
       marginLeft: '5px',
       marginRight: '10px'
 
+   } as React.CSSProperties)
+
+   const warningTooltip = (isVisible: boolean) => ({
+      visibility: isVisible ? 'visible' : 'hidden',
    } as React.CSSProperties)
 
    const handleOpenIssue = (issueUrl: string) => {
@@ -73,12 +78,14 @@ const ListDataViewer = ({ cell }) => {
                               item.color
                            )}>
 
+                           {item.issue.warnings.length > 0 ? <Tooltip items={item.issue.warnings} /> : null}
+
                            <div style={getListItemTextStyle()}>
                               {item.title}
                            </div>
 
-                           <div onClick={() => handleOpenIssue(item.issue.url)} style={getListItemOpenIconStyle()}>
-                              <OpenIcon label='open' />
+                           <div onClick={() => handleOpenIssue(item.issue.url)} style={getListItemIconStyle()}>
+                              <OpenIcon label='open' size='medium' />
                            </div>
                         </div>
                      )}
