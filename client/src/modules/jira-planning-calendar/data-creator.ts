@@ -5,8 +5,6 @@ import ListDataViewer from "./components/ListDataViewer";
 import {
   getNumberOfDays,
   getDateRange,
-  isToday,
-  isFuture,
   isSame
 } from "../shared/date-helper";
 import { IssuePart } from "./domain/issue/issue-part";
@@ -130,11 +128,13 @@ export class CalendarDataCreator {
         data.push(issueParts[idx]);
         issuesMap.set(JSON.stringify({ row, col }), data);
 
+        const cellType: CellType = this.getCellType(col);
+
         const cell: Cell = this.createCell(
           row,
           col,
           data.sort(sortByLengthAndKey),
-          CellType.DRAG_AND_DROP,
+          cellType,
           ListDataViewer
         );
         this.addCell(cell);
@@ -156,6 +156,7 @@ export class CalendarDataCreator {
 
   private getCellType(currentCol: number): CellType {
     let cellType: CellType;
+    console.log(this.currentDateCol)
     if (this.currentDateCol === currentCol) {
       cellType = CellType.DRAG_AND_DROP;
     } else if (this.currentDateCol < currentCol) {

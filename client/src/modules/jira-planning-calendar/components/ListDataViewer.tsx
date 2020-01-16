@@ -37,8 +37,7 @@ const ListDataViewer = ({ cell }) => {
 
    } as React.CSSProperties)
 
-   const handleOpenIssue = (issueUrl: string) => {
-      console.log(issueUrl)
+   const handleOpenIssue = (issueUrl: string): void => {
       window.open(issueUrl, '_blank');
    }
 

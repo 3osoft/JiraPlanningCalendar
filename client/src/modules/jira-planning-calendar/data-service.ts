@@ -18,11 +18,11 @@ export class DataService {
   };
 
   async loadData(query: Query = this.defaultQuery) {
-    const data = await this.getData(query);
-    const users = new UserParser().parseArrayFromJson(data[0].data);
-    const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
-    console.log(data[1].data.issues)
-    return new CalendarDataCreator(users, issues, query.startDate, query.endDate).createData();
+    // const data = await this.getData(query);
+    // const users = new UserParser().parseArrayFromJson(data[0].data);
+    // const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
+    // console.log(data[1].data.issues)
+    // return new CalendarDataCreator(users, issues, query.startDate, query.endDate).createData();
 
     return testData();
   }
@@ -72,6 +72,12 @@ const testData = () => {
     {
       displayName: "Ben Kusicky",
       accountId: "1",
+      accountType: "atlassian",
+      isActive: true
+    } as User,
+    {
+      displayName: "Ivan Janovic",
+      accountId: "2",
       accountType: "atlassian",
       isActive: true
     } as User

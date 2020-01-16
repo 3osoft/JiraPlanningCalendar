@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Spreadsheet from "react-spreadsheet";
-import { fetchDataAction, reorderAction, moveAction } from '../actions';
+import { fetchDataAction, reorderAction, moveAction } from '../thunks';
 import { useSelector, useDispatch } from 'react-redux';
 import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
 import { DragDropContext, DropResult, DraggableLocation } from 'react-beautiful-dnd';
