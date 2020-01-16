@@ -51,8 +51,8 @@ const testData = () => {
     users[0],
     users[0],
     new Date(),
-    new Date(new Date().setDate(new Date().getDate() +0)),
-    new Date(new Date().setDate(new Date().getDate() + 1))
+    new Date(new Date().setDate(new Date().getDate() - 1)),
+    new Date(new Date().setDate(new Date().getDate() + 2))
   );
   const issue2 = new Issue(
     "XAM-5777",

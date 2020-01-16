@@ -74,7 +74,7 @@ const ListDataViewer = ({ cell }) => {
                            )}>
 
                            <div style={getListItemTextStyle()}>
-                              {item.issue.key}
+                              {item.title}
                            </div>
 
                            <div onClick={() => handleOpenIssue(item.issue.url)} style={getListItemOpenIconStyle()}>

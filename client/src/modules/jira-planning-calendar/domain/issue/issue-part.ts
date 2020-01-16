@@ -20,6 +20,10 @@ export class IssuePart {
       return this.totalParts === 1;
    }
 
+   get title(): string {
+      return this.issue.key;
+   }
+
    constructor(issue: Issue, actualPart: number, totalParts: number, color: string | undefined) {
       this.id = uuid();
       this.issue = issue;

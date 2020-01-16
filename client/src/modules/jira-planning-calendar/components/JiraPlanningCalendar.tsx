@@ -54,7 +54,7 @@ const JiraPlanningCalendar = () => {
     handleDragAndDrop(source, destination);
   }
 
-  const handleDragAndDrop = (source: DraggableLocation , destination: DraggableLocation ) => {
+  const handleDragAndDrop = (source: DraggableLocation, destination: DraggableLocation) => {
     if (source.droppableId === destination.droppableId) {
       const cellPos = JSON.parse(source.droppableId);
       const positon = {
@@ -72,7 +72,7 @@ const JiraPlanningCalendar = () => {
       const issuePart = state.data[sourCellPos.row][sourCellPos.col].value[source.index];
 
       const sourPos = {
-        row: sourCellPos.row, 
+        row: sourCellPos.row,
         col: sourCellPos.col
       } as Position;
 
