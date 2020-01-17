@@ -6,7 +6,7 @@ import { CellType } from "./model/cell/cell-type";
 import { Cell } from "./model/cell/cell";
 import ListDataViewer from "./components/ListDataViewer";
 import { IssuePart } from "./domain/issue/issue-part";
-import { sortByLengthAndKey } from "./domain/issue/issue-sort";
+import DateViewer from "./components/DateViewer";
 var randomColor = require("randomcolor");
 
 export class CalendarDataCalculator {
@@ -43,13 +43,13 @@ export class CalendarDataCalculator {
             const startDate = issue.startDate ? issue.startDate : issue.created;
             const endDate = issue.dueDate ? issue.dueDate : calendarData.dates[calendarData.dates.length - 1];
 
-            const issueParts = getDateRange(startDate, endDate).map(
+            const issueParts: IssuePart[] = getDateRange(startDate, endDate).map(
                 (_date, index, all) => {
                     let color = calendarData.colorMap.get(issue.key);
 
                     if (!color) {
                         color = randomColor({
-                            luminosity: "light",
+                            luminosity: "bright",
                             format: "rgba",
                             alpha: 0.8
                         });
@@ -63,7 +63,9 @@ export class CalendarDataCalculator {
                 isSame(date, startDate)
             );
 
-            let dueDateIndex = calendarData.dates.findIndex(date => isSame(date, endDate));
+            let dueDateIndex = calendarData.dates.findIndex(date => 
+                isSame(date, endDate)
+            );
 
             if (dueDateIndex !== -1) {
                 dueDateIndex = dueDateIndex + 1;
@@ -98,7 +100,7 @@ export class CalendarDataCalculator {
                 const cell: Cell = this.createCell(
                     row,
                     col,
-                    data.sort(sortByLengthAndKey),
+                    data,
                     cellType,
                     false,
                     ListDataViewer,
@@ -114,10 +116,10 @@ export class CalendarDataCalculator {
             const cell = this.createCell(
                 0,
                 index + 1,
-                date.toLocaleDateString(),
+                date,
                 CellType.READONLY,
                 true,
-                undefined,
+                DateViewer,
                 undefined,
                 date
             );
