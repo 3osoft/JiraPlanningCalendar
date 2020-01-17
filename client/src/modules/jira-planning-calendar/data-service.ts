@@ -6,6 +6,7 @@ import { Project } from "./domain/project/project";
 import { UserParser } from "./domain/user/user-parser";
 import { IssueParser } from "./domain/issue/issue-parser";
 import { axiosInstance } from "../../axios";
+import { CalendarData } from "./model/calendar-data";
 
 export class DataService {
   private defaultQuery = {
@@ -17,7 +18,7 @@ export class DataService {
       .toDate()
   };
 
-  async loadData(query: Query = this.defaultQuery) {
+  async loadData(query: Query = this.defaultQuery): Promise<CalendarData> {
     // const data = await this.getData(query);
     // const users = new UserParser().parseArrayFromJson(data[0].data);
     // const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);

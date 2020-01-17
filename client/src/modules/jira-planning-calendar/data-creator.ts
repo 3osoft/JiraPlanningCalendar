@@ -10,6 +10,7 @@ import {
 import { IssuePart } from "./domain/issue/issue-part";
 import { CellType } from "./model/cell/cell-type";
 import DateViewer from './components/DateViewer';
+import { CalendarData } from "./model/calendar-data";
 var randomColor = require("randomcolor");
 
 export class CalendarDataCreator {
@@ -39,11 +40,16 @@ export class CalendarDataCreator {
     this.init(rowCount, colCount);
   }
 
-  createData(): Array<Array<Cell>> {
+  createData(): CalendarData {
     this.addDates();
     this.addUsers();
     this.addIssues();
-    return this.data;
+    return { 
+      dates: this.dates,
+      issues: this.issues,
+      users: this.users,
+      sheetData: this.data
+    } as CalendarData;
   }
 
   private addDates(): void {
@@ -53,7 +59,10 @@ export class CalendarDataCreator {
         index + 1,
         date,
         CellType.READONLY,
-        DateViewer
+        true,
+        DateViewer,
+        undefined,
+        date
       );
       this.addCell(cell);
     });
@@ -65,7 +74,10 @@ export class CalendarDataCreator {
         index + 1,
         0,
         user.displayName,
-        CellType.READONLY
+        CellType.READONLY,
+        true,
+        undefined,
+        user
       );
       this.addCell(cell);
     });
@@ -140,7 +152,9 @@ export class CalendarDataCreator {
           col,
           data,
           cellType,
-          ListDataViewer
+          false,
+          ListDataViewer,
+          this.users[userIndex]
         );
         this.addCell(cell);
       });
@@ -152,8 +166,13 @@ export class CalendarDataCreator {
       this.data[i] = [];
       for (let j = 0; j < columnCount; j++) {
         const cellType: CellType = this.getCellType(j);
-
-        const emptyCell = this.createCell(i, j, [], cellType, ListDataViewer);
+        var emptyCell;
+        if (i === 0 || j === 0) {
+          emptyCell = this.createCell(i, j, [], cellType, true, ListDataViewer);
+        } else {
+          emptyCell = this.createCell(i, j, [], cellType, false, ListDataViewer, this.users[j-1], this.dates[i-1]);
+        }
+        
         this.addCell(emptyCell);
       }
     }
@@ -176,14 +195,20 @@ export class CalendarDataCreator {
     col: number,
     value: any,
     cellType: CellType,
-    dataViewer?: any
+    isHeader: boolean,
+    dataViewer?: any,
+    user?: User,
+    date?: Date
   ): Cell {
     return {
       row: row,
       col: col,
       value: value,
       DataViewer: dataViewer,
-      cellType: cellType
+      cellType: cellType,
+      isHeader: isHeader,
+      user: user,
+      date: date
     };
   }
 

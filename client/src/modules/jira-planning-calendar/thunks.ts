@@ -4,6 +4,7 @@ import { State } from "./state";
 import { fetchDataRequested, fetchDataSuccess, fetchDataFailure, reorder, move } from "./actions";
 import { Cell } from "./model/cell/cell";
 import { Position } from '../shared/position';
+import moment from "moment";
 
 export const fetchDataAction = (query?: Query) => {
    return async dispatch => {
@@ -28,7 +29,7 @@ export const fetchDataAction = (query?: Query) => {
    return (dispatch, getState) => {
      const state: State = getState();
  
-     const data = [...state.data];
+     const data = [...state.calendarData.sheetData];
      const issuePart: IssuePart = data[pos.row][pos.col].value[sourIndex];
  
      const startIndex = pos.col - issuePart.actualPart;
@@ -51,7 +52,18 @@ export const fetchDataAction = (query?: Query) => {
  ) => {
    return (dispatch, getState) => {
      const state: State = getState();
-     const moveResult = [...state.data];
+     const moveResult = [...state.calendarData.sheetData];
+     const issue = draggedIssuePart.issue;
+
+     if (sourPos.row != destPos.row) {
+       // change assignee
+       const newUser = state.calendarData.sheetData[destPos.row][destPos.col].user!;
+      //  issue.assignee = newUser;
+     }
+     if (sourPos.col != destPos.col) {
+       const dateChange = destPos.col - sourPos.col;
+      //  issue.startDate = moment(draggedIssuePart.issue.startDate).add(dateChange, "d").toDate();
+     }
  
      const startIndex = sourPos.col;
      const endIndex =

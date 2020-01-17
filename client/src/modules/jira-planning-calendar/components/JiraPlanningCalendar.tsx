@@ -69,7 +69,7 @@ const JiraPlanningCalendar = () => {
       const sourCellPos = JSON.parse(source.droppableId);
       const destCellPos = JSON.parse(destination.droppableId);
 
-      const issuePart = state.data[sourCellPos.row][sourCellPos.col].value[source.index];
+      const issuePart = state.calendarData.sheetData[sourCellPos.row][sourCellPos.col].value[source.index];
 
       const sourPos = {
         row: sourCellPos.row,
@@ -105,7 +105,7 @@ const JiraPlanningCalendar = () => {
         }}>
         <div className='calendar'>
           <DragDropContext onDragEnd={onDragEnd}>
-            <Spreadsheet data={state.data} />
+            <Spreadsheet data={state.calendarData.sheetData} />
           </DragDropContext>
         </div>
       </LoadingOverlay>
