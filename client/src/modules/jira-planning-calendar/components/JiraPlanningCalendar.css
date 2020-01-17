@@ -9,9 +9,23 @@
 .calendar {
   margin-top: 1%
 }
+.SpreadsheetTable {
+  display: flex;
+  overflow-x: scroll;
+}
+
+.SpreadsheetTable, .Spreadsheet {
+  width: 100%;
+}
 
 .Spreadsheet td {
   white-space: 'pre';
   padding: 0;
-  vertical-align: top;
+  vertical-align: center;
+  display: table-cell;
+  width: 100%; 
+  min-width: 150px;
+  text-align: center;
+  height: 1px;
 } 
+

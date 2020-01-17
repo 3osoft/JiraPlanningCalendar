@@ -1,7 +1,6 @@
 import { DataService, Query } from "./data-service";
 import { IssuePart } from "./domain/issue/issue-part";
 import { State } from "./state";
-import { sortByLengthAndKey } from "./domain/issue/issue-sort";
 import { fetchDataRequested, fetchDataSuccess, fetchDataFailure, reorder, move } from "./actions";
 import { Cell } from "./model/cell/cell";
 import { Position } from '../shared/position';
@@ -89,7 +88,7 @@ export const fetchDataAction = (query?: Query) => {
        const item = parts.splice(0, 1)[0];
  
        newCell.value.push(item);
-       newCell.value = newCell.value.sort(sortByLengthAndKey);
+       newCell.value = newCell.value;
        
      });
  
