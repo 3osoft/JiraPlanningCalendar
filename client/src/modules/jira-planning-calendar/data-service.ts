@@ -7,6 +7,7 @@ import { UserParser } from "./domain/user/user-parser";
 import { IssueParser } from "./domain/issue/issue-parser";
 import { axiosInstance } from "../../axios";
 import { CalendarData } from "./model/calendar-data";
+import { CalendarDataCalculator } from "./calendar-data-calculator";
 
 export class DataService {
   private defaultQuery = {
@@ -23,6 +24,7 @@ export class DataService {
     // const users = new UserParser().parseArrayFromJson(data[0].data);
     // const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
     // console.log(data[1].data.issues)
+    // return CalendarDataCalculator.calculateInitialSheetData(users, issues, query.startDate, query.endDate);
     // return new CalendarDataCreator(users, issues, query.startDate, query.endDate).createData();
 
     return testData();
@@ -31,30 +33,30 @@ export class DataService {
   private getData(query?: Query) {
     let userUrl = "/users";
     let issuesUrl = "/issues";
-  
+
     if (query) {
       if (query.userName) {
         userUrl = `${userUrl}/${query.userName}`;
       }
-  
+
       var issuesQuery = "";
       if (query.issue) {
         issuesQuery = `${issuesQuery}project=${query.issue}&`;
       }
-  
+
       var startDate = moment(query.startDate).format("YYYY-MM-DD");
       issuesQuery = `${issuesQuery}created>=${startDate}&`;
-  
+
       var endDate = moment(query.endDate).format("YYYY-MM-DD");
       issuesQuery = `${issuesQuery}created<=${endDate}&`;
-  
+
       if (issuesQuery.endsWith("&")) {
         issuesQuery = issuesQuery.slice(0, -1);
       }
-  
+
       issuesUrl = `${issuesUrl}/${issuesQuery}`;
     }
-  
+
     return Promise.all([
       axiosInstance.get(userUrl),
       axiosInstance.get(issuesUrl)
@@ -122,7 +124,13 @@ const testData = () => {
     startDate,
     endDate
   )
-  return result.createData();
+  // return result.createData();
+  return CalendarDataCalculator.calculateInitialSheetData(
+    users,
+    [issue1, issue2],
+    startDate,
+    endDate
+  );
 };
 
 

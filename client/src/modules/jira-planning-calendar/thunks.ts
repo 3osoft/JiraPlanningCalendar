@@ -56,14 +56,14 @@ export const fetchDataAction = (query?: Query) => {
      const moveResult = [...state.calendarData.sheetData];
      const issue = draggedIssuePart.issue;
 
-     if (sourPos.row != destPos.row) {
+     if (sourPos.row !== destPos.row) {
        // change assignee
        const newUser = state.calendarData.sheetData[destPos.row][destPos.col].user!;
       //  issue.assignee = newUser;
      }
-     if (sourPos.col != destPos.col) {
+     if (sourPos.col !== destPos.col) {
        const dateChange = destPos.col - sourPos.col;
-      //  issue.startDate = moment(draggedIssuePart.issue.startDate).add(dateChange, "d").toDate();
+      //  issue.startDate = moment(issue.startDate).add(dateChange, "d").toDate();
      }
  
      const startIndex = sourPos.col;

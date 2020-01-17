@@ -21,6 +21,7 @@ export class CalendarDataCreator {
   private startDate: Date;
   private endDate: Date;
   private currentDateCol: number;
+  private colorMap = new Map<string, string | undefined>();
 
   constructor(
     users: Array<User>,
@@ -48,7 +49,8 @@ export class CalendarDataCreator {
       dates: this.dates,
       issues: this.issues,
       users: this.users,
-      sheetData: this.data
+      sheetData: this.data,
+      colorMap: this.colorMap
     } as CalendarData;
   }
 
@@ -85,7 +87,6 @@ export class CalendarDataCreator {
 
   private addIssues(): void {
     const issuesMap = new Map<string, Array<IssuePart>>();
-    const colorMap = new Map<string, string | undefined>();
 
     this.issues.forEach((issue: Issue, index: number) => {
       const startDate = issue.startDate ? issue.startDate : issue.created;
@@ -93,7 +94,7 @@ export class CalendarDataCreator {
 
       const issueParts = getDateRange(startDate, endDate).map(
         (date, index, all) => {
-          let color = colorMap.get(issue.key);
+          let color = this.colorMap.get(issue.key);
 
           if (!color) {
             color = randomColor({
@@ -101,7 +102,7 @@ export class CalendarDataCreator {
               format: "rgba",
               alpha: 0.8
             });
-            colorMap.set(issue.key, color);
+            this.colorMap.set(issue.key, color);
           }
           return new IssuePart(issue, index, all.length, color);
         }

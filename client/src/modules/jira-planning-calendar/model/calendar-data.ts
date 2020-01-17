@@ -7,4 +7,5 @@ export interface CalendarData {
     issues: Array<Issue>;
     dates: Array<Date>;
     sheetData: Array<Array<Cell>>;
+    colorMap: Map<string, string | undefined>;
 }

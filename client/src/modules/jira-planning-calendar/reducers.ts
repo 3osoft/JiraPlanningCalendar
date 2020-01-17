@@ -11,7 +11,13 @@ import { CalendarData } from "./model/calendar-data";
 
 const initialState: State = {
   isLoading: true,
-  calendarData: {dates: [], issues: [], users: [], sheetData: []} ,
+  calendarData: {
+    dates: [], 
+    issues: [], 
+    users: [], 
+    sheetData: [],
+    colorMap: new Map<string, string | undefined>()
+  },
   errors: []
 };
 
