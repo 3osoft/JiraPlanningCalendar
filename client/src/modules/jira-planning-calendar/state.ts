@@ -1,7 +1,7 @@
-import { Cell } from "./model/cell/cell";
+import { CalendarData } from "./model/calendar-data";
 
 export interface State {
    isLoading: boolean;
-   data: Array<Array<Cell>>;
+   calendarData: CalendarData;
    errors: Array<string>;
  }

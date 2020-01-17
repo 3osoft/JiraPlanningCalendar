@@ -7,29 +7,34 @@ import {
 } from "./action-types";
 import { Cell } from "./model/cell/cell";
 import { State } from "./state";
+import { CalendarData } from "./model/calendar-data";
 
 const initialState: State = {
   isLoading: true,
-  data: [],
+  calendarData: {dates: [], issues: [], users: [], sheetData: []} ,
   errors: []
 };
 
 const rootReducer = (state: State = initialState, action) => {
   switch (action.type) {
     case REORDER:
-      const reorderResult = [...state.data];
+      const newCalendarData = {...state.calendarData};
+      const reorderResult = [...newCalendarData.sheetData];
 
       action.payload.cells.forEach((cell: Cell) => {
         reorderResult[cell.row][cell.col] = Object.assign({}, cell);
       });
+
+      newCalendarData.sheetData = reorderResult;
       
       return {
         isLoading: false,
-        data: reorderResult,
+        calendarData: newCalendarData,
         errors: []
       } as State;
     case MOVE:
-      const moveResult: Array<Array<Cell>> = [...state.data];
+      const newData: CalendarData = {...state.calendarData};
+      const moveResult: Array<Array<Cell>> = [...newData.sheetData];
       const cells: Array<Cell> = action.payload.sourCells.concat(
         action.payload.destCells
       );
@@ -37,27 +42,28 @@ const rootReducer = (state: State = initialState, action) => {
       cells.forEach((cell: Cell) => {
         moveResult[cell.row][cell.col] = Object.assign({}, cell);
       });
+      newData.sheetData = moveResult;
       return {
         isLoading: false,
-        data: moveResult,
+        calendarData: newData,
         errors: []
       } as State;
     case FETCH_DATA_REQUEST:
       return {
         isLoading: true,
-        data: [...state.data],
+        calendarData: {...state.calendarData},
         errors: []
       } as State;
     case FETCH_DATA_SUCCESS:
       return {
         isLoading: false,
-        data: [...action.payload],
+        calendarData: {...action.payload},
         errors: []
       } as State;
     case FETCH_DATA_FAILURE:
       return {
         isLoading: false,
-        data: [],
+        calendarData: {},
         errors: [...action.payload]
       } as State;
     default:
