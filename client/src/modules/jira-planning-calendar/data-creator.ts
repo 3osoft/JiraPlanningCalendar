@@ -9,7 +9,7 @@ import {
 } from "../shared/date-helper";
 import { IssuePart } from "./domain/issue/issue-part";
 import { CellType } from "./model/cell/cell-type";
-import { sortByLengthAndKey } from "./domain/issue/issue-sort";
+import DateViewer from './components/DateViewer';
 import { CalendarData } from "./model/calendar-data";
 var randomColor = require("randomcolor");
 
@@ -59,10 +59,10 @@ export class CalendarDataCreator {
       const cell = this.createCell(
         0,
         index + 1,
-        date.toLocaleDateString(),
+        date,
         CellType.READONLY,
         true,
-        undefined,
+        DateViewer,
         undefined,
         date
       );
@@ -92,13 +92,13 @@ export class CalendarDataCreator {
       const startDate = issue.startDate ? issue.startDate : issue.created;
       const endDate = issue.dueDate ? issue.dueDate : this.endDate;
 
-      const issueParts = getDateRange(startDate, endDate).map(
+      const issueParts: Array<IssuePart> = getDateRange(startDate, endDate).map(
         (date, index, all) => {
           let color = this.colorMap.get(issue.key);
 
           if (!color) {
             color = randomColor({
-              luminosity: "light",
+              luminosity: "bright",
               format: "rgba",
               alpha: 0.8
             });
@@ -112,7 +112,9 @@ export class CalendarDataCreator {
         isSame(date, startDate)
       );
 
-      let dueDateIndex = this.dates.findIndex(date => isSame(date, endDate));
+      let dueDateIndex = this.dates.findIndex(date => 
+        isSame(date, endDate)
+      );
 
       if (dueDateIndex !== -1) {
         dueDateIndex = dueDateIndex + 1;
@@ -139,7 +141,9 @@ export class CalendarDataCreator {
           data = [];
         }
 
-        data.push(issueParts[idx]);
+        const issuePart: IssuePart = issueParts[idx];
+
+        data.push(issuePart);
         issuesMap.set(JSON.stringify({ row, col }), data);
 
         const cellType: CellType = this.getCellType(col);
@@ -147,7 +151,7 @@ export class CalendarDataCreator {
         const cell: Cell = this.createCell(
           row,
           col,
-          data.sort(sortByLengthAndKey),
+          data,
           cellType,
           false,
           ListDataViewer,
@@ -177,7 +181,6 @@ export class CalendarDataCreator {
 
   private getCellType(currentCol: number): CellType {
     let cellType: CellType;
-    console.log(this.currentDateCol)
     if (this.currentDateCol === currentCol) {
       cellType = CellType.DRAG_AND_DROP;
     } else if (this.currentDateCol < currentCol) {

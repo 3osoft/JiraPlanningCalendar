@@ -12,9 +12,11 @@ const ListDataViewer = ({ cell }) => {
 
    const getListItemStyle = (isDragging, draggableStyle, color) => ({
       display: 'flex',
+      height: '100%',
+      width: '100%',
       userSelect: 'none',
       padding: '3px',
-      background: isDragging ? 'lightgreen' : color,
+      background: isDragging ? color.replace(/[^,]+(?=\))/, '0.5') : color,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
@@ -24,16 +26,22 @@ const ListDataViewer = ({ cell }) => {
 
    const getListStyle = isDraggingOver => ({
       height: '100%',
+      width: '100%',
       background: isDraggingOver ? 'lightblue' : 'white',
+      display: 'flex',
+      flexBasis: '1',
+      flexDirection: 'column',
+      flexGrow: 1,
    } as React.CSSProperties);
 
    const getListItemIconStyle = () => ({
-      cursor: 'pointer'
+      cursor: 'pointer',
+      lineHeight: 0,
    } as React.CSSProperties)
 
    const getListItemTextStyle = () => ({
-      marginLeft: '5px',
-      marginRight: '10px'
+      marginLeft: '10px',
+      marginRight: '20px'
 
    } as React.CSSProperties)
 

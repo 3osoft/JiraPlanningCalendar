@@ -14,7 +14,7 @@ import './JiraPlanningCalendar.css';
 
 const JiraPlanningCalendar = () => {
   const state = useSelector((state: State) => state);
-
+  
   const dispatch = useDispatch();
 
   const filterHandler = async (data) => {
@@ -62,9 +62,9 @@ const JiraPlanningCalendar = () => {
         col: cellPos.col
       } as Position;
 
-      // dispatch(
-      //   reorderAction(positon, source.index, destination.index)
-      // );
+      dispatch(
+        reorderAction(positon, source.index, destination.index)
+      );
     } else {
       const sourCellPos = JSON.parse(source.droppableId);
       const destCellPos = JSON.parse(destination.droppableId);
