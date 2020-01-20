@@ -1,4 +1,3 @@
-import { CalendarDataCreator } from "./data-creator";
 import moment from "moment";
 import { Issue } from "./domain/issue/issue";
 import { User } from "./domain/user/user";
@@ -25,7 +24,6 @@ export class DataService {
     // const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
     // console.log(data[1].data.issues)
     // return CalendarDataCalculator.calculateInitialSheetData(users, issues, query.startDate, query.endDate);
-    // return new CalendarDataCreator(users, issues, query.startDate, query.endDate).createData();
 
     return testData();
   }
@@ -118,13 +116,6 @@ const testData = () => {
     .endOf("isoWeek")
     .toDate();
 
-  const result = new CalendarDataCreator(
-    users,
-    [issue1, issue2],
-    startDate,
-    endDate
-  )
-  // return result.createData();
   return CalendarDataCalculator.calculateInitialSheetData(
     users,
     [issue1, issue2],
