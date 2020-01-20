@@ -1,4 +1,4 @@
-import httpGet from '../http-client';
+import {httpGet, httpPut} from '../http-client';
 
 export default function routes(app, addon) {
    //var httpGet = require('../http-client');
@@ -37,6 +37,13 @@ export default function routes(app, addon) {
       var url = `https://bkjira.atlassian.net/rest/api/latest/search?jql=${encodeURIComponent(query)}`;
 
       httpGet(addon, req, res, url);
+   });
+
+   app.put('/issue/:query', addon.authenticate(), function (req, res) {     
+      var query = req.params.query;
+      var url = `https://bkjira.atlassian.net/rest/api/latest/issue/${encodeURIComponent(query)}`;
+
+      httpPut(addon, req, res, url);
    });
 }
 

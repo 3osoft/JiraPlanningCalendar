@@ -28,6 +28,24 @@ export class DataService {
     return testData();
   }
 
+  async updateIssues(issuesData: UpdateIssueData[]): Promise<any> {
+    const requests = <any>[];
+    issuesData.forEach(issueData => {
+      let endpointUrl = `/issue/${issueData.issueKey}`;
+      let requestBody = {update: {}}
+      if (issueData.newAssignee !== undefined) {
+        requestBody.update = {...requestBody.update, assignee: [{set: {accountId: issueData.newAssignee?.accountId}}]};
+      }
+      if (issueData.newStartDate !== undefined) {
+        // TODO change start date
+      }
+
+      requests.push(axiosInstance.put(endpointUrl, requestBody));
+    });
+
+    return Promise.all(requests);
+  }
+
   private getData(query?: Query) {
     let userUrl = "/users";
     let issuesUrl = "/issues";
@@ -130,4 +148,10 @@ export interface Query {
   issue?: string;
   startDate: Date;
   endDate: Date;
+}
+
+export interface UpdateIssueData {
+  issueKey: string;
+  newAssignee?: User;
+  newStartDate?: Date;
 }
