@@ -67,7 +67,6 @@ export class CalendarDataCalculator {
     }
 
     private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>): void {
-
         issues.forEach((issue: Issue) => {
             const startDate = issue.startDate ? issue.startDate : issue.created;
             const endDate = issue.dueDate ? issue.dueDate : calendarData.dates[calendarData.dates.length - 1];
@@ -178,7 +177,6 @@ export class CalendarDataCalculator {
 
     private static getCellType(currentCol: number, currentDateColumnIndex: number): CellType {
         let cellType: CellType;
-        console.log(currentDateColumnIndex)
         if (currentDateColumnIndex === currentCol) {
             cellType = CellType.DRAG_AND_DROP;
         } else if (currentDateColumnIndex < currentCol) {

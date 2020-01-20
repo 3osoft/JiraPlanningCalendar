@@ -1,13 +1,12 @@
-import moment from "moment";
+import moment from 'moment';
 
 export const getDateRange = (startDate: Date, endDate: Date): Array<Date> => {
   const dateArray = new Array<Date>();
-  const start = new Date(startDate);
-  const end = new Date(endDate);
+  const start = moment(startDate).startOf('day').add(-1, 'days');
+  const end =  moment(endDate).startOf('day').add(1, 'days');
 
-  while (start <= end) {
-    dateArray.push(new Date(start));
-    start.setDate(start.getDate() + 1);
+  while (start.add(1, 'days').diff(end) < 0) {
+    dateArray.push(start.clone().toDate())
   }
   return dateArray;
 };
