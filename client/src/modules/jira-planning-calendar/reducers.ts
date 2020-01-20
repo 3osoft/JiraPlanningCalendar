@@ -3,7 +3,8 @@ import {
   MOVE,
   FETCH_DATA_REQUEST,
   FETCH_DATA_SUCCESS,
-  FETCH_DATA_FAILURE
+  FETCH_DATA_FAILURE,
+  NEW_CALENDAR_DATA
 } from "./action-types";
 import { Cell } from "./model/cell/cell";
 import { State } from "./state";
@@ -71,6 +72,25 @@ const rootReducer = (state: State = initialState, action) => {
         isLoading: false,
         calendarData: {},
         errors: [...action.payload]
+      } as State;
+    case NEW_CALENDAR_DATA:
+      const data = {...state.calendarData};
+      data.issues = [...action.payload.issues];
+      data.sheetData = [...action.payload.sheetData];
+      data.sheetData.forEach((_, index) => {
+        data.sheetData[index] = [...action.payload.sheetData[index]];
+      });
+
+      for(let i = 0; i < data.sheetData.length; i++) {
+        for(let j = 0; j< data.sheetData[i].length; j++) {
+          data.sheetData[i][j] = {...data.sheetData[i][j]};
+        }
+      }
+
+      return {
+        isLoading: false,
+        errors: [],
+        calendarData: data
       } as State;
     default:
       return state;

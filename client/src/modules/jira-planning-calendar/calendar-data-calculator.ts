@@ -7,7 +7,7 @@ import { Cell } from "./model/cell/cell";
 import ListDataViewer from "./components/ListDataViewer";
 import { IssuePart } from "./domain/issue/issue-part";
 import DateViewer from "./components/DateViewer";
-var randomColor = require("randomcolor");
+let randomColor = require("randomcolor");
 
 export class CalendarDataCalculator {
 
@@ -32,14 +32,43 @@ export class CalendarDataCalculator {
 
         this.fillDateCells(result.dates, result.sheetData);
         this.fillUserCells(result.users, result.sheetData);
-        this.fillIssueCells(result, currentDateColumnIndex);
+        this.fillIssueCells(result, result.issues);
         return result;
     }
 
-    private static fillIssueCells(calendarData: CalendarData, currentDateColumnIndex: number): void {
-        const issuesMap = new Map<string, Array<IssuePart>>();
+    public static recalculateChangedIssues(originalCalendarData: CalendarData, changedIssues: Array<Issue>): CalendarData {
+        const result = {...originalCalendarData};
 
-        calendarData.issues.forEach((issue: Issue) => {
+        // remove original issue parts
+        for (let i = 1; i < result.sheetData.length; i++) {
+            for (let j = 1; j < result.sheetData[i].length; j++) {
+                let cell = result.sheetData[i][j];
+                let values = cell.value as IssuePart[];
+                let indexesToRemove = [] as number[];
+                if (values.length > 0) {
+                    values.forEach((issuePart, index) => {
+                        if (changedIssues.includes(issuePart.issue)) {
+                            indexesToRemove.push(index);
+                        }
+                    });
+    
+                    indexesToRemove.reverse().forEach(indexToRemove => {
+                        values.splice(indexToRemove, 1);
+                    });
+                    cell.value = values;
+                }
+
+            }
+        }
+
+        this.fillIssueCells(result, changedIssues);
+
+        return result;
+    }
+
+    private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>): void {
+
+        issues.forEach((issue: Issue) => {
             const startDate = issue.startDate ? issue.startDate : issue.created;
             const endDate = issue.dueDate ? issue.dueDate : calendarData.dates[calendarData.dates.length - 1];
 
@@ -85,28 +114,16 @@ export class CalendarDataCalculator {
             const row = userIndex + 1;
             dateCells.forEach((_dateCell, idx) => {
                 const col = startDateIndex + idx + 1;
+                let cellValue = calendarData.sheetData[row][col].value;
 
-                let data = issuesMap.get(JSON.stringify({ row, col }));
+                let dataCell = calendarData.sheetData[row][col] as Cell;
 
-                if (!data) {
-                    data = [];
+                if (!cellValue) {
+                    cellValue = [];
                 }
 
-                data.push(issueParts[idx]);
-                issuesMap.set(JSON.stringify({ row, col }), data);
-
-                const cellType: CellType = this.getCellType(col, currentDateColumnIndex);
-
-                const cell: Cell = this.createCell(
-                    row,
-                    col,
-                    data,
-                    cellType,
-                    false,
-                    ListDataViewer,
-                    calendarData.users[userIndex]
-                );
-                this.addCell(cell, calendarData.sheetData);
+                cellValue.push(issueParts[idx]);
+                this.addCell(dataCell, calendarData.sheetData);
             });
         });
     }
@@ -147,11 +164,11 @@ export class CalendarDataCalculator {
             calendarData.sheetData[i] = [];
             for (let j = 0; j < calendarData.dates.length + 1; j++) {
                 const cellType: CellType = this.getCellType(j, currentDateColumnIndex);
-                var emptyCell;
+                let emptyCell;
                 if (i === 0 || j === 0) {
                     emptyCell = this.createCell(i, j, [], cellType, true, ListDataViewer);
                 } else {
-                    emptyCell = this.createCell(i, j, [], cellType, false, ListDataViewer, calendarData.users[j - 1], calendarData.dates[i - 1]);
+                    emptyCell = this.createCell(i, j, [], cellType, false, ListDataViewer, calendarData.users[i - 1], calendarData.dates[j - 1]);
                 }
 
                 this.addCell(emptyCell, calendarData.sheetData);

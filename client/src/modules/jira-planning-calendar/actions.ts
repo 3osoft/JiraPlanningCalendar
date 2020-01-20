@@ -3,12 +3,14 @@ import {
   MOVE,
   FETCH_DATA_REQUEST,
   FETCH_DATA_SUCCESS,
-  FETCH_DATA_FAILURE
+  FETCH_DATA_FAILURE,
+  NEW_CALENDAR_DATA
 } from "./action-types";
 
 import { Position } from "../shared/position";
 
 import { Cell } from "./model/cell/cell";
+import { Issue } from "./domain/issue/issue";
 
 export const fetchDataRequested = () => {
   return {
@@ -46,6 +48,16 @@ export const move = (sourCells: Array<Cell>, destCells: Array<Cell>) => {
     payload: {
       sourCells,
       destCells
+    }
+  };
+};
+
+export const newCalendarData = (issues: Array<Issue>, sheetData: Array<Array<Cell>>) => {
+  return {
+    type: NEW_CALENDAR_DATA,
+    payload: {
+      issues,
+      sheetData
     }
   };
 };
