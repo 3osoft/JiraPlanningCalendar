@@ -7,7 +7,7 @@ import { DragDropContext, DropResult, DraggableLocation } from 'react-beautiful-
 import { hideElements } from '../../shared/dom-element-helper';
 import { Query } from '../data-service';
 import LoadingOverlay from 'react-loading-overlay';
-import BounceLoader from 'react-spinners/BounceLoader'
+import PropagateLoader from 'react-spinners/PropagateLoader'
 import { State } from './../state';
 import { Position } from '../../shared/position';
 import './JiraPlanningCalendar.css';
@@ -34,8 +34,9 @@ const JiraPlanningCalendar = () => {
     }
 
     document.body.addEventListener('mousedown', () => {
-      hideElements(document.querySelectorAll('.ActiveCell'))
-
+      setTimeout(() => {
+        hideElements(document.querySelectorAll('.ActiveCell'));
+      }, 0);
     }, true);
   }, [state.isLoading])
 
@@ -96,11 +97,11 @@ const JiraPlanningCalendar = () => {
       </div>
       <LoadingOverlay
         active={state.isLoading}
-        spinner={<BounceLoader color='#0052CC' />}
+        spinner={<PropagateLoader color='#0052CC' />}
         styles={{
           overlay: (base: any) => ({
             ...base,
-            background: '#D9FFFFFF'
+            background: 'rgba(255, 255, 255, 0.7)'
           }),
         }}>
         <div className='calendar'>
