@@ -7,6 +7,7 @@ import { Cell } from "./model/cell/cell";
 import ListDataViewer from "./components/ListDataViewer";
 import { IssuePart } from "./domain/issue/issue-part";
 import DateViewer from "./components/DateViewer";
+import { Position } from "../shared/position";
 let randomColor = require("randomcolor");
 
 export class CalendarDataCalculator {
@@ -36,8 +37,9 @@ export class CalendarDataCalculator {
         return result;
     }
 
-    public static recalculateChangedIssues(originalCalendarData: CalendarData, changedIssues: Array<Issue>): CalendarData {
+    public static recalculateChangedIssues(originalCalendarData: CalendarData, changedIssues: Array<Issue>): [CalendarData, Position[]] {
         const result = {...originalCalendarData};
+        let changedPositions = [] as Position[];
 
         // remove original issue parts
         for (let i = 1; i < result.sheetData.length; i++) {
@@ -46,28 +48,36 @@ export class CalendarDataCalculator {
                 let values = cell.value as IssuePart[];
                 let indexesToRemove = [] as number[];
                 if (values.length > 0) {
+                    let valueChanged = false;
                     values.forEach((issuePart, index) => {
                         if (changedIssues.includes(issuePart.issue)) {
                             indexesToRemove.push(index);
+                            valueChanged = true;
                         }
                     });
     
                     indexesToRemove.reverse().forEach(indexToRemove => {
                         values.splice(indexToRemove, 1);
                     });
-                    cell.value = values;
+                    if (valueChanged) {
+                        cell.value = values;
+                        changedPositions.push({
+                            row: i,
+                            col: j
+                        });
+                    }
                 }
 
             }
         }
 
-        this.fillIssueCells(result, changedIssues);
+        changedPositions = changedPositions.concat(this.fillIssueCells(result, changedIssues));
 
-        return result;
+        return [result, changedPositions];
     }
 
-    private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>): void {
-
+    private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>): Position[] {
+        const changedPositions = [] as Position[];
         issues.forEach((issue: Issue) => {
             const startDate = issue.startDate ? issue.startDate : issue.created;
             const endDate = issue.dueDate ? issue.dueDate : calendarData.dates[calendarData.dates.length - 1];
@@ -124,8 +134,14 @@ export class CalendarDataCalculator {
 
                 cellValue.push(issueParts[idx]);
                 this.addCell(dataCell, calendarData.sheetData);
+                changedPositions.push({
+                    row: row,
+                    col: col
+                });
             });
         });
+
+        return changedPositions;
     }
 
     private static fillDateCells(dates: Date[], sheetData: Cell[][]): void {

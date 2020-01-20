@@ -81,11 +81,9 @@ const rootReducer = (state: State = initialState, action) => {
         data.sheetData[index] = [...action.payload.sheetData[index]];
       });
 
-      for(let i = 0; i < data.sheetData.length; i++) {
-        for(let j = 0; j< data.sheetData[i].length; j++) {
-          data.sheetData[i][j] = {...data.sheetData[i][j]};
-        }
-      }
+      action.payload.changedPositions.forEach(position => {
+        data.sheetData[position.row][position.col] = {...data.sheetData[position.row][position.col]};
+      });
 
       return {
         isLoading: false,

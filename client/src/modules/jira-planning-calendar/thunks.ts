@@ -68,6 +68,6 @@ export const fetchDataAction = (query?: Query) => {
 
      const newData = CalendarDataCalculator.recalculateChangedIssues(state.calendarData, changedIssues);
  
-     dispatch(newCalendarData(changedIssues, newData.sheetData));
+     dispatch(newCalendarData(changedIssues, newData[0].sheetData, newData[1]));
    };
  };
