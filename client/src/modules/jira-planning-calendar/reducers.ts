@@ -71,6 +71,9 @@ const reducer = (state: State = initialState, action) => {
       // //     data.sheetData[i][j] = { ...data.sheetData[i][j] };
       // //   }
       // // }
+      action.payload.changedPositions.forEach(position => {
+        state.calendarData.sheetData[position.row][position.col] = {...data.sheetData[position.row][position.col]};
+      });
 
       state.isLoading = false;
       state.errors = [];

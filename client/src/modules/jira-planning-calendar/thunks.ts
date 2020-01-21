@@ -1,4 +1,4 @@
-import { DataService, Query } from "./data-service";
+import { DataService, Query, UpdateIssueData } from "./data-service";
 import { IssuePart } from "./domain/issue/issue-part";
 import { State } from "./state";
 import { fetchDataRequested, fetchDataSuccess, fetchDataFailure, reorder, move, newCalendarData } from "./actions";
@@ -51,23 +51,36 @@ export const fetchDataAction = (query?: Query) => {
    sourPos: Position,
    destPos: Position
  ) => {
-   return (dispatch, getState) => {
+   return async (dispatch, getState) => {
      const state = getState();
      const issue = draggedIssuePart.issue;
+     const updateIssueData = {issueKey: issue.key} as UpdateIssueData;
 
      if (sourPos.row !== destPos.row) {
        // change assignee
        const newUser = state.reducer.calendarData.sheetData[destPos.row][destPos.col].user!;
        issue.assignee = newUser;
+       updateIssueData.newAssignee = issue.assignee;
      }
      if (sourPos.col !== destPos.col) {
        const dateChange = destPos.col - sourPos.col;
        issue.startDate = moment(issue.startDate).add(dateChange, "d").toDate();
+       updateIssueData.newStartDate = issue.startDate;
      }
-     const changedIssues = [issue];
 
-     const newData = CalendarDataCalculator.recalculateChangedIssues(state.reducer.calendarData, changedIssues);
+     const changedIssues = [issue];
+     const dataService = new DataService();
+     try {
+      await dataService.updateIssues([updateIssueData]);
+
+      const newData = CalendarDataCalculator.recalculateChangedIssues(state.calendarData, changedIssues);
+      
+     dispatch(newCalendarData(changedIssues, newData[0].sheetData));
+     } catch(error) {
+        console.log(error);
+        dispatch(fetchDataFailure([error]));
+     }
+
  
-     dispatch(newCalendarData(changedIssues, newData.sheetData));
    };
  };

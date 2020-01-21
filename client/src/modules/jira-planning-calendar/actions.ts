@@ -52,12 +52,13 @@ export const move = (sourCells: Array<Cell>, destCells: Array<Cell>) => {
   };
 };
 
-export const newCalendarData = (issues: Array<Issue>, sheetData: Array<Array<Cell>>) => {
+export const newCalendarData = (issues: Array<Issue>, sheetData: Array<Array<Cell>>, changedPositions: Array<Position>) => {
   return {
     type: NEW_CALENDAR_DATA,
     payload: {
       issues,
-      sheetData
+      sheetData,
+      changedPositions
     }
   };
 };
