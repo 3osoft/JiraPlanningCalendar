@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import Spreadsheet from "react-spreadsheet";
+import Spreadsheet from 'react-spreadsheet';
 import { fetchDataAction, reorderAction, moveAction } from '../thunks';
 import { useSelector, useDispatch } from 'react-redux';
 import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
@@ -13,7 +13,7 @@ import { Position } from '../../shared/position';
 import './JiraPlanningCalendar.css';
 
 const JiraPlanningCalendar = () => {
-  const state = useSelector((state: State) => state);
+  const state = useSelector((state: State) => state).reducer;
   console.log(state)
   const dispatch = useDispatch();
 
@@ -71,7 +71,7 @@ const JiraPlanningCalendar = () => {
       const sourCellPos = JSON.parse(source.droppableId);
       const destCellPos = JSON.parse(destination.droppableId);
 
-      const issuePart = state.reducer.calendarData.sheetData[sourCellPos.row][sourCellPos.col].value[source.index];
+      const issuePart = state.calendarData.sheetData[sourCellPos.row][sourCellPos.col].value[source.index];
 
       const sourPos = {
         row: sourCellPos.row,
@@ -107,7 +107,7 @@ const JiraPlanningCalendar = () => {
         }}>
         <div>
           <DragDropContext onDragEnd={onDragEnd}>
-            <Spreadsheet data={state.reducer.calendarData.sheetData} />
+            <Spreadsheet data={state.calendarData.sheetData} />
           </DragDropContext>
         </div>
       </LoadingOverlay>

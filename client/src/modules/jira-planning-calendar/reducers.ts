@@ -8,8 +8,6 @@ import {
 } from "./action-types";
 import { Cell } from "./model/cell/cell";
 import { State } from "./state";
-import { CalendarData } from "./model/calendar-data";
-import produce from "immer";
 
 const initialState: State = {
   isLoading: true,
@@ -29,7 +27,6 @@ const reducer = (state: State = initialState, action) => {
       action.payload.cells.forEach((cell: Cell) => {
         state.calendarData.sheetData[cell.row][cell.col] = cell;
       });
-      console.log('reorder')
       state.isLoading = false;
       state.errors = [];
       return state;
@@ -37,7 +34,6 @@ const reducer = (state: State = initialState, action) => {
       const cells: Array<Cell> = action.payload.sourCells.concat(
         action.payload.destCells
       );
-      console.log('move')
       cells.forEach((cell: Cell) => {
         state.calendarData.sheetData[cell.row][cell.col] = cell;
       });
@@ -60,21 +56,20 @@ const reducer = (state: State = initialState, action) => {
       state.errors = action.payload;
       return state;
     case NEW_CALENDAR_DATA:
-      state.calendarData.issues = [...action.payload.issues];
-      state.calendarData.sheetData = [...action.payload.sheetData];
-      state.calendarData.sheetData.forEach((_, index) => {
-        state.calendarData.sheetData[index] = [...action.payload.sheetData[index]];
-      });
-      console.log('new')
-      // // for (let i = 0; i < data.sheetData.length; i++) {
-      // //   for (let j = 0; j < data.sheetData[i].length; j++) {
-      // //     data.sheetData[i][j] = { ...data.sheetData[i][j] };
-      // //   }
-      // // }
-      action.payload.changedPositions.forEach(position => {
-        state.calendarData.sheetData[position.row][position.col] = {...data.sheetData[position.row][position.col]};
-      });
+      const data = state.calendarData;
+      data.issues = action.payload.issues;
+      data.sheetData = action.payload.sheetData;
+      data.sheetData.forEach((_, index) => {
+        data.sheetData[index] = action.payload.sheetData[index];
+      })
+      
+      for(let i = 0; i < data.sheetData.length; i++) {
+        for(let j = 0; j< data.sheetData[i].length; j++) {
+          data.sheetData[i][j] = {...data.sheetData[i][j]};
+        }
+      }
 
+      state.calendarData = data;
       state.isLoading = false;
       state.errors = [];
       return state;

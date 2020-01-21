@@ -21,10 +21,10 @@ export class DataService {
   } as Query;
 
   async loadData(query: Query = this.defaultQuery): Promise<CalendarData> {
-    // const data = await this.getData(query);
-    // const users = new UserParser().parseArrayFromJson(data[0].data);
-    // const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
-    // return CalendarDataCalculator.calculateInitialSheetData(users, issues, query.startDate, query.endDate);
+    const data = await this.getData(query);
+    const users = new UserParser().parseArrayFromJson(data[0].data);
+    const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
+    return CalendarDataCalculator.calculateInitialSheetData(users, issues, query.startDate, query.endDate);
 
     return testData();
   }
