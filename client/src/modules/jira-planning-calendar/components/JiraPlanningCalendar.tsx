@@ -14,7 +14,7 @@ import './JiraPlanningCalendar.css';
 
 const JiraPlanningCalendar = () => {
   const state = useSelector((state: State) => state);
-  
+  console.log(state)
   const dispatch = useDispatch();
 
   const filterHandler = async (data) => {
@@ -22,7 +22,8 @@ const JiraPlanningCalendar = () => {
       userName: data.user,
       issue: data.issue,
       startDate: new Date(data.startDate),
-      endDate: new Date(data.endDate)
+      endDate: new Date(data.endDate),
+      showWithoutDueDate: data.showWithoutDueDate
     }
 
     dispatch(fetchDataAction(query));
@@ -70,7 +71,7 @@ const JiraPlanningCalendar = () => {
       const sourCellPos = JSON.parse(source.droppableId);
       const destCellPos = JSON.parse(destination.droppableId);
 
-      const issuePart = state.calendarData.sheetData[sourCellPos.row][sourCellPos.col].value[source.index];
+      const issuePart = state.reducer.calendarData.sheetData[sourCellPos.row][sourCellPos.col].value[source.index];
 
       const sourPos = {
         row: sourCellPos.row,
@@ -104,9 +105,9 @@ const JiraPlanningCalendar = () => {
             background: 'rgba(255, 255, 255, 0.7)'
           }),
         }}>
-        <div className='calendar'>
+        <div>
           <DragDropContext onDragEnd={onDragEnd}>
-            <Spreadsheet data={state.calendarData.sheetData} />
+            <Spreadsheet data={state.reducer.calendarData.sheetData} />
           </DragDropContext>
         </div>
       </LoadingOverlay>

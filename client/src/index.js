@@ -6,9 +6,13 @@ import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import rootReducer from './modules/jira-planning-calendar/reducers'
+import reducer from './modules/jira-planning-calendar/reducers'
+import { combineReducers } from 'redux-immer';
+import produce from 'immer';
 
-const store = createStore(rootReducer, applyMiddleware(thunk));
+const store = createStore(combineReducers(produce, {
+    reducer
+}), applyMiddleware(thunk));
 
 ReactDOM.render(
     <Provider store={store}>

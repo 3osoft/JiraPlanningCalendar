@@ -52,12 +52,12 @@ export const fetchDataAction = (query?: Query) => {
    destPos: Position
  ) => {
    return (dispatch, getState) => {
-     const state: State = getState();
+     const state = getState();
      const issue = draggedIssuePart.issue;
 
      if (sourPos.row !== destPos.row) {
        // change assignee
-       const newUser = state.calendarData.sheetData[destPos.row][destPos.col].user!;
+       const newUser = state.reducer.calendarData.sheetData[destPos.row][destPos.col].user!;
        issue.assignee = newUser;
      }
      if (sourPos.col !== destPos.col) {
@@ -66,7 +66,7 @@ export const fetchDataAction = (query?: Query) => {
      }
      const changedIssues = [issue];
 
-     const newData = CalendarDataCalculator.recalculateChangedIssues(state.calendarData, changedIssues);
+     const newData = CalendarDataCalculator.recalculateChangedIssues(state.reducer.calendarData, changedIssues);
  
      dispatch(newCalendarData(changedIssues, newData.sheetData));
    };

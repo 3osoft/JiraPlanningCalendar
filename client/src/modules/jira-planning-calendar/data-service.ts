@@ -1,4 +1,3 @@
-import { CalendarDataCreator } from "./data-creator";
 import moment from "moment";
 import { Issue } from "./domain/issue/issue";
 import { User } from "./domain/user/user";
@@ -9,6 +8,7 @@ import { axiosInstance } from "../../axios";
 import { CalendarData } from "./model/calendar-data";
 import { CalendarDataCalculator } from "./calendar-data-calculator";
 
+
 export class DataService {
   private defaultQuery = {
     startDate: moment()
@@ -16,16 +16,15 @@ export class DataService {
       .toDate(),
     endDate: moment()
       .endOf("isoWeek")
-      .toDate()
-  };
+      .toDate(),
+    showWithoutDueDate: false
+  } as Query;
 
   async loadData(query: Query = this.defaultQuery): Promise<CalendarData> {
     // const data = await this.getData(query);
     // const users = new UserParser().parseArrayFromJson(data[0].data);
     // const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
-    // console.log(data[1].data.issues)
     // return CalendarDataCalculator.calculateInitialSheetData(users, issues, query.startDate, query.endDate);
-    // return new CalendarDataCreator(users, issues, query.startDate, query.endDate).createData();
 
     return testData();
   }
@@ -99,7 +98,7 @@ const testData = () => {
     new Date(),
     undefined,
     new Date(new Date().setDate(new Date().getDate() + 2)),
-    ['Start date is not defined']
+    ["Start date is not defined"]
   );
   const issue2 = new Issue(
     "XAM-5777",
@@ -118,13 +117,6 @@ const testData = () => {
     .endOf("isoWeek")
     .toDate();
 
-  const result = new CalendarDataCreator(
-    users,
-    [issue1, issue2],
-    startDate,
-    endDate
-  )
-  // return result.createData();
   return CalendarDataCalculator.calculateInitialSheetData(
     users,
     [issue1, issue2],
@@ -133,10 +125,10 @@ const testData = () => {
   );
 };
 
-
 export interface Query {
   userName?: string;
   issue?: string;
   startDate: Date;
   endDate: Date;
+  showWithoutDueDate: boolean;
 }

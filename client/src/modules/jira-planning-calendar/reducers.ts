@@ -9,92 +9,75 @@ import {
 import { Cell } from "./model/cell/cell";
 import { State } from "./state";
 import { CalendarData } from "./model/calendar-data";
+import produce from "immer";
 
 const initialState: State = {
   isLoading: true,
   calendarData: {
-    dates: [], 
-    issues: [], 
-    users: [], 
+    dates: [],
+    issues: [],
+    users: [],
     sheetData: [],
     colorMap: new Map<string, string | undefined>()
   },
   errors: []
 };
 
-const rootReducer = (state: State = initialState, action) => {
+const reducer = (state: State = initialState, action) => {
   switch (action.type) {
     case REORDER:
-      const newCalendarData = {...state.calendarData};
-      const reorderResult = [...newCalendarData.sheetData];
-
       action.payload.cells.forEach((cell: Cell) => {
-        reorderResult[cell.row][cell.col] = Object.assign({}, cell);
+        state.calendarData.sheetData[cell.row][cell.col] = cell;
       });
-
-      newCalendarData.sheetData = reorderResult;
-      
-      return {
-        isLoading: false,
-        calendarData: newCalendarData,
-        errors: []
-      } as State;
+      console.log('reorder')
+      state.isLoading = false;
+      state.errors = [];
+      return state;
     case MOVE:
-      const newData: CalendarData = {...state.calendarData};
-      const moveResult: Array<Array<Cell>> = [...newData.sheetData];
       const cells: Array<Cell> = action.payload.sourCells.concat(
         action.payload.destCells
       );
-
+      console.log('move')
       cells.forEach((cell: Cell) => {
-        moveResult[cell.row][cell.col] = Object.assign({}, cell);
+        state.calendarData.sheetData[cell.row][cell.col] = cell;
       });
-      newData.sheetData = moveResult;
-      return {
-        isLoading: false,
-        calendarData: newData,
-        errors: []
-      } as State;
+
+      state.isLoading = false;
+      state.errors = [];
+      return state;
     case FETCH_DATA_REQUEST:
-      return {
-        isLoading: true,
-        calendarData: {...state.calendarData},
-        errors: []
-      } as State;
+      state.isLoading = true;
+      state.isLoading = state.isLoading;
+      state.errors = [];
+      return state;
     case FETCH_DATA_SUCCESS:
-      return {
-        isLoading: false,
-        calendarData: {...action.payload},
-        errors: []
-      } as State;
+      state.isLoading = false;
+      state.calendarData = action.payload;
+      state.errors = [];
+      return state;
     case FETCH_DATA_FAILURE:
-      return {
-        isLoading: false,
-        calendarData: {},
-        errors: [...action.payload]
-      } as State;
+      state = initialState;
+      state.errors = action.payload;
+      return state;
     case NEW_CALENDAR_DATA:
-      const data = {...state.calendarData};
-      data.issues = [...action.payload.issues];
-      data.sheetData = [...action.payload.sheetData];
-      data.sheetData.forEach((_, index) => {
-        data.sheetData[index] = [...action.payload.sheetData[index]];
+      state.calendarData.issues = [...action.payload.issues];
+      state.calendarData.sheetData = [...action.payload.sheetData];
+      state.calendarData.sheetData.forEach((_, index) => {
+        state.calendarData.sheetData[index] = [...action.payload.sheetData[index]];
       });
+      console.log('new')
+      // // for (let i = 0; i < data.sheetData.length; i++) {
+      // //   for (let j = 0; j < data.sheetData[i].length; j++) {
+      // //     data.sheetData[i][j] = { ...data.sheetData[i][j] };
+      // //   }
+      // // }
 
-      for(let i = 0; i < data.sheetData.length; i++) {
-        for(let j = 0; j< data.sheetData[i].length; j++) {
-          data.sheetData[i][j] = {...data.sheetData[i][j]};
-        }
-      }
-
-      return {
-        isLoading: false,
-        errors: [],
-        calendarData: data
-      } as State;
+      state.isLoading = false;
+      state.errors = [];
+      return state;
     default:
       return state;
   }
 };
 
-export default rootReducer;
+export default reducer;
