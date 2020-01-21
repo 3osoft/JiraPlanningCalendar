@@ -8,7 +8,6 @@ import { axiosInstance } from "../../axios";
 import { CalendarData } from "./model/calendar-data";
 import { CalendarDataCalculator } from "./calendar-data-calculator";
 
-
 export class DataService {
   private defaultQuery = {
     startDate: moment()
@@ -24,7 +23,12 @@ export class DataService {
     const data = await this.getData(query);
     const users = new UserParser().parseArrayFromJson(data[0].data);
     const issues = new IssueParser().parseArrayFromJson(data[1].data.issues);
-    return CalendarDataCalculator.calculateInitialSheetData(users, issues, query.startDate, query.endDate);
+    return CalendarDataCalculator.calculateInitialSheetData(
+      users,
+      issues,
+      query.startDate,
+      query.endDate
+    );
 
     return testData();
   }
@@ -33,9 +37,12 @@ export class DataService {
     const requests = <any>[];
     issuesData.forEach(issueData => {
       let endpointUrl = `/issue/${issueData.issueKey}`;
-      let requestBody = {update: {}}
+      let requestBody = { update: {} };
       if (issueData.newAssignee !== undefined) {
-        requestBody.update = {...requestBody.update, assignee: [{set: {accountId: issueData.newAssignee?.accountId}}]};
+        requestBody.update = {
+          ...requestBody.update,
+          assignee: [{ set: { accountId: issueData.newAssignee?.accountId } }]
+        };
       }
       if (issueData.newStartDate !== undefined) {
         // TODO change start date
@@ -50,33 +57,26 @@ export class DataService {
   private getData(query?: Query) {
     let userUrl = "/users";
     let issuesUrl = "/issues";
-
+    let issuesQuery;
     if (query) {
       if (query.userName) {
         userUrl = `${userUrl}/${query.userName}`;
       }
 
-      var issuesQuery = "";
+      const startDate = moment(query.startDate).format("YYYY-MM-DD");
+      const endDate = moment(query.endDate).format("YYYY-MM-DD");
+
+      const dateQuery = `cf[10015] <= ${endDate} and due >= ${startDate}`;
+      issuesQuery = dateQuery;
+
       if (query.issue) {
-        issuesQuery = `${issuesQuery}project=${query.issue}&`;
+        issuesQuery = `${issuesQuery} and issue = ${query.issue}`;
       }
-
-      var startDate = moment(query.startDate).format("YYYY-MM-DD");
-      issuesQuery = `${issuesQuery}created>=${startDate}&`;
-
-      var endDate = moment(query.endDate).format("YYYY-MM-DD");
-      issuesQuery = `${issuesQuery}created<=${endDate}&`;
-
-      if (issuesQuery.endsWith("&")) {
-        issuesQuery = issuesQuery.slice(0, -1);
-      }
-
-      issuesUrl = `${issuesUrl}/${issuesQuery}`;
     }
 
     return Promise.all([
       axiosInstance.get(userUrl),
-      axiosInstance.get(issuesUrl)
+      axiosInstance.post(issuesUrl, { jql: issuesQuery })
     ]);
   }
 }
