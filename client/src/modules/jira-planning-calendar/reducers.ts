@@ -1,10 +1,12 @@
 import {
   REORDER,
   MOVE,
-  FETCH_DATA_REQUEST,
-  FETCH_DATA_SUCCESS,
-  FETCH_DATA_FAILURE,
-  NEW_CALENDAR_DATA
+  LOADING_STARTED,
+  LOADING_FINISHED,
+  SUCCESS_WITH_RESULT,
+  ERROR,
+  NEW_CALENDAR_DATA,
+  SUCCESS,
 } from "./action-types";
 import { Cell } from "./model/cell/cell";
 import { State } from "./state";
@@ -41,17 +43,27 @@ const reducer = (state: State = initialState, action) => {
       state.isLoading = false;
       state.errors = [];
       return state;
-    case FETCH_DATA_REQUEST:
+    case LOADING_STARTED:
       state.isLoading = true;
-      state.isLoading = state.isLoading;
+      state.calendarData = state.calendarData;
       state.errors = [];
       return state;
-    case FETCH_DATA_SUCCESS:
+    case LOADING_FINISHED:
+      state.isLoading = false;
+      state.calendarData = state.calendarData;
+      state.errors = [];
+      return state;
+    case SUCCESS_WITH_RESULT:
       state.isLoading = false;
       state.calendarData = action.payload;
       state.errors = [];
       return state;
-    case FETCH_DATA_FAILURE:
+    case SUCCESS:
+      state.isLoading = false;
+      state.calendarData = state.calendarData;
+      state.errors = [];
+      return state;
+    case ERROR:
       state = initialState;
       state.errors = action.payload;
       return state;
@@ -70,7 +82,7 @@ const reducer = (state: State = initialState, action) => {
       }
 
       state.calendarData = data;
-      state.isLoading = false;
+      state.isLoading = true;
       state.errors = [];
       return state;
     default:

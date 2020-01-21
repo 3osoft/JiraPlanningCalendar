@@ -1,10 +1,11 @@
 import {
   REORDER,
   MOVE,
-  FETCH_DATA_REQUEST,
-  FETCH_DATA_SUCCESS,
-  FETCH_DATA_FAILURE,
-  NEW_CALENDAR_DATA
+  LOADING_STARTED,
+  SUCCESS_WITH_RESULT,
+  NEW_CALENDAR_DATA,
+  ERROR,
+  LOADING_FINISHED
 } from "./action-types";
 
 import { Position } from "../shared/position";
@@ -12,22 +13,28 @@ import { Position } from "../shared/position";
 import { Cell } from "./model/cell/cell";
 import { Issue } from "./domain/issue/issue";
 
-export const fetchDataRequested = () => {
+export const loadingStarted = () => {
   return {
-    type: FETCH_DATA_REQUEST
+    type: LOADING_STARTED
   };
 };
 
-export const fetchDataSuccess = result => {
+export const loadingFinished = () => {
   return {
-    type: FETCH_DATA_SUCCESS,
+    type: LOADING_FINISHED
+  };
+};
+
+export const successWithResult = result => {
+  return {
+    type: SUCCESS_WITH_RESULT,
     payload: result
   };
 };
 
-export const fetchDataFailure = error => {
+export const errorResult = error => {
   return {
-    type: FETCH_DATA_FAILURE,
+    type: ERROR,
     payload: error
   };
 };

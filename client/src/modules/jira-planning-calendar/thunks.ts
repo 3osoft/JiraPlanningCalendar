@@ -1,12 +1,13 @@
 import { DataService, Query, UpdateIssueData } from "./data-service";
 import { IssuePart } from "./domain/issue/issue-part";
 import {
-  fetchDataRequested,
-  fetchDataSuccess,
-  fetchDataFailure,
+  loadingStarted,
+  successWithResult,
+  errorResult,
   reorder,
   move,
-  newCalendarData
+  newCalendarData,
+  loadingFinished
 } from "./actions";
 import { Cell } from "./model/cell/cell";
 import { Position } from "../shared/position";
@@ -15,15 +16,15 @@ import { CalendarDataCalculator } from "./calendar-data-calculator";
 
 export const fetchDataAction = (query?: Query) => {
   return async dispatch => {
-    dispatch(fetchDataRequested());
+    dispatch(loadingStarted());
 
     try {
       const dataService = new DataService();
       const result = await dataService.loadData(query);
-      dispatch(fetchDataSuccess(result));
+      dispatch(successWithResult(result));
     } catch (error) {
       console.log(error);
-      dispatch(fetchDataFailure([error]));
+      dispatch(errorResult([error]));
     }
   };
 };
@@ -79,21 +80,22 @@ export const moveAction = (
     }
 
     const changedIssues = [issue];
+    const newData = CalendarDataCalculator.recalculateChangedIssues(
+      state.reducer.calendarData,
+      changedIssues
+    );
+    //dispatch(loadingStarted());
+
+    dispatch(newCalendarData(changedIssues, newData[0].sheetData, newData[1]));
+
     const dataService = new DataService();
     try {
       await dataService.updateIssues([updateIssueData]);
 
-      const newData = CalendarDataCalculator.recalculateChangedIssues(
-        state.reducer.calendarData,
-        changedIssues
-      );
-
-      dispatch(
-        newCalendarData(changedIssues, newData[0].sheetData, newData[1])
-      );
+      dispatch(loadingFinished());
     } catch (error) {
       console.log(error);
-      dispatch(fetchDataFailure([error]));
+      dispatch(errorResult([error]));
     }
   };
 };
