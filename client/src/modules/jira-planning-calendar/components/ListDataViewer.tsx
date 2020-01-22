@@ -4,6 +4,7 @@ import OpenIcon from '@atlaskit/icon/glyph/open';
 import { IssuePart } from './../domain/issue/issue-part';
 import { CellType } from '../model/cell/cell-type';
 import Tooltip from '../../shared/components/Tooltip';
+import { validate } from '../domain/issue/issue-validator';
 
 const ListDataViewer = ({ cell }) => {
    const row = cell.row;
@@ -81,7 +82,7 @@ const ListDataViewer = ({ cell }) => {
                               item.color
                            )}>
 
-                           <Tooltip items={item.warnings} />
+                           <Tooltip items={validate(item.issue)} />
 
                            <div style={getListItemTextStyle()}>
                               {item.title}
