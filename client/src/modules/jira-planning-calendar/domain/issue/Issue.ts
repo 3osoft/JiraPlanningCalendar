@@ -10,6 +10,8 @@ export class Issue {
   created: Date;
   startDate: Date | undefined;
   dueDate: Date | undefined;
+  timeEstimate: number | undefined;
+  timeSpent: number | undefined;
   url: string;
 
   constructor(
@@ -20,6 +22,8 @@ export class Issue {
     created: Date,
     startDate: Date | undefined,
     dueDate: Date | undefined,
+    timeEstimate: number | undefined,
+    timeSpent: number | undefined
   ) {
     this.key = key;
     this.project = project;
@@ -28,6 +32,8 @@ export class Issue {
     this.created = created;
     this.startDate = startDate;
     this.dueDate = dueDate;
+    this.timeEstimate = timeEstimate;
+    this.timeSpent = timeSpent;
     this.url = `${JIRA_BROWSE_URL}${key}`;
   }
 }

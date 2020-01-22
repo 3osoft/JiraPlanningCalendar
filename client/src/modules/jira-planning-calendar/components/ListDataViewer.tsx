@@ -43,7 +43,6 @@ const ListDataViewer = ({ cell }) => {
    const getListItemTextStyle = () => ({
       marginLeft: '10px',
       marginRight: '20px'
-
    } as React.CSSProperties)
 
    const handleOpenIssue = (issueUrl: string): void => {

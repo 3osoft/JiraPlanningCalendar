@@ -16,7 +16,8 @@ export class IssueParser implements Parser<Issue> {
     
     const startDate = data.fields.customfield_10015 ? new Date(data.fields.customfield_10015) : undefined;
     const dueDate = data.fields.duedate ? new Date(data.fields.duedate) : undefined;
-    return new Issue(key, project, assignee, creator, created, startDate, dueDate);
+
+    return new Issue(key, project, assignee, creator, created, startDate, dueDate, data.fields.timeestimate, data.fields.timespent);
   }
 
   toJson(data: Issue) {

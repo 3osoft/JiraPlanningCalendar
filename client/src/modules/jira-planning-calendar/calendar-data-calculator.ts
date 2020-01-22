@@ -34,7 +34,7 @@ export class CalendarDataCalculator {
 
         this.fillDateCells(result.dates, result.sheetData);
         this.fillUserCells(result.users, result.sheetData);
-        this.fillIssueCells(result, result.issues, query.startDate, query.showWithoutDueDate);
+        this.fillIssueCells(result, result.issues, query.showWithoutDueDate);
         return result;
     }
 
@@ -71,18 +71,16 @@ export class CalendarDataCalculator {
             }
         }
 
-        changedPositions = changedPositions.concat(this.fillIssueCells(result, changedIssues, result[0], true));
+        changedPositions = changedPositions.concat(this.fillIssueCells(result, changedIssues, true));
         return [result, changedPositions];
     }
 
-    private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>, sheetStartDate: Date, showWithoutDueDate: boolean): Position[] {
+    private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>, showWithoutDueDate: boolean): Position[] {
         const changedPositions = [] as Position[];
         issues.forEach((issue: Issue) => {
-            if (issue.dueDate || showWithoutDueDate) {
-                let tempStartDate = issue.startDate ? issue.startDate : issue.created;
-
-                const startDate = tempStartDate < sheetStartDate ? sheetStartDate : tempStartDate;
-                const endDate = issue.dueDate ? issue.dueDate : calendarData.dates[calendarData.dates.length - 1];
+            if (issue.dueDate || showWithoutDueDate) {                
+                const startDate = this.calculateIssueStartDate(issue, calendarData.dates[0]);
+                const endDate = this.calculateIssueEndDate(issue, calendarData);
 
                 const issueParts: IssuePart[] = getDateRange(startDate, endDate).map(
                     (_date, index, all) => {
@@ -240,5 +238,21 @@ export class CalendarDataCalculator {
     private static getColorsFromLocalStorage(): Map<string, string | undefined> {
         const localStorageData = localStorage.getItem(COLOR_MAP);
         return localStorageData ? new Map<string, string | undefined>(JSON.parse(localStorageData)) : new Map<string, string | undefined>();
+    }
+
+    private static calculateIssueStartDate(issue: Issue, sheetStartDate: Date): Date {
+        const tempStartDate = issue.startDate ? issue.startDate : issue.created;                
+        const startDate = tempStartDate < sheetStartDate ? sheetStartDate : tempStartDate;
+        return startDate;
+    }
+
+    private static calculateIssueEndDate(issue: Issue, calendarData: CalendarData): Date {
+        let alternativeEndDayIndex: number = calendarData.dates.length - 1;
+        if (!issue.dueDate && issue.timeEstimate) {
+            alternativeEndDayIndex = Math.ceil(issue.timeEstimate / 3600 / 8);
+        }
+
+        const endDate = issue.dueDate ? issue.dueDate : calendarData.dates[alternativeEndDayIndex];
+        return endDate;
     }
 }

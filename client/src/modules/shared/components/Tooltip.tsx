@@ -3,12 +3,28 @@ import WarningIcon from '@atlaskit/icon/glyph/warning';
 import './Tooltip.css';
 
 const Tooltip = (props) => {
-   
+
+   const primaryColor = () => {
+      return hasWarnings() ? '#FF991F' : 'transparent';
+   }
+
+   const secondaryColor = () => {
+      return hasWarnings() ? '#FFFAE5' : 'transparent';
+   }
+
+   const hasWarnings = () => {
+      return props.items.length > 0;
+   }
+
    return (
-      <div className={ props.items.length > 0 ? 'tooltip' : 'hiddenTooltip'}>
-         <WarningIcon label='warning-icon' primaryColor='#FF991F' secondaryColor='#FFFAE5' size='medium'/>
+      <div className='tooltip'>
+         <WarningIcon label='warning-icon' primaryColor={primaryColor()} secondaryColor={secondaryColor()} size='medium' />
          <div className='tooltipText'>
-            {props.items}
+            <ul>
+               {props.items.map((item: string) => {
+                  return <li>{item}</li>
+               })}
+            </ul>
          </div>
       </div>
    )

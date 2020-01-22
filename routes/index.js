@@ -33,7 +33,6 @@ export default function routes(app, addon) {
    });
 
    app.post('/issues', addon.authenticate(), function (req, res) {     
-      //var query = req.params.query;
       var url = `https://bkjira.atlassian.net/rest/api/latest/search`;
 
       httpPost(addon, req, res, url);
