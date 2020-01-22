@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Spreadsheet from 'react-spreadsheet';
-import { fetchDataAction, reorderAction, moveAction } from '../thunks';
+import { fetchDataAction, dragAndDropAction } from '../thunks';
 import { useSelector, useDispatch } from 'react-redux';
 import JiraPlanningCalendarFilter from './JiraPlanningCalendarFilter';
 import { DragDropContext, DropResult, DraggableLocation } from 'react-beautiful-dnd';
@@ -44,7 +44,6 @@ const JiraPlanningCalendar = () => {
     dispatch(fetchDataAction());
   }, []);
 
-
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
 
@@ -56,17 +55,7 @@ const JiraPlanningCalendar = () => {
   }
 
   const handleDragAndDrop = (source: DraggableLocation, destination: DraggableLocation) => {
-    if (source.droppableId === destination.droppableId) {
-      const cellPos = JSON.parse(source.droppableId);
-      const positon = {
-        row: cellPos.row,
-        col: cellPos.col
-      } as Position;
-
-      // dispatch(
-      //   reorderAction(positon, source.index, destination.index)
-      // );
-    } else {
+    if (source.droppableId !== destination.droppableId) {
       const sourCellPos = JSON.parse(source.droppableId);
       const destCellPos = JSON.parse(destination.droppableId);
 
@@ -83,7 +72,7 @@ const JiraPlanningCalendar = () => {
       } as Position;
 
       dispatch(
-        moveAction(issuePart, sourPos, destPos)
+        dragAndDropAction(issuePart, sourPos, destPos)
       );
     }
   }

@@ -22,7 +22,7 @@ export class CalendarDataCalculator {
         const dates = getDateRange(query.startDate, query.endDate);
 
         const result = {
-            users: users,
+            users: users.sort(),
             dates: dates,
             issues: issues,
             sheetData: [],

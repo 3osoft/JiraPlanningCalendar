@@ -1,9 +1,7 @@
 import {
-  REORDER,
-  MOVE,
   LOADING_STARTED,
   SUCCESS_WITH_RESULT,
-  NEW_CALENDAR_DATA,
+  DRAG_AND_DROP,
   ERROR,
   LOADING_FINISHED
 } from "./action-types";
@@ -39,29 +37,9 @@ export const errorResult = error => {
   };
 };
 
-export const reorder = (pos: Position, cells: Array<Cell>) => {
+export const dragAndDrop = (issues: Array<Issue>, sheetData: Array<Array<Cell>>, changedPositions: Array<Position>) => {
   return {
-    type: REORDER,
-    payload: {
-      pos,
-      cells
-    }
-  };
-};
-
-export const move = (sourCells: Array<Cell>, destCells: Array<Cell>) => {
-  return {
-    type: MOVE,
-    payload: {
-      sourCells,
-      destCells
-    }
-  };
-};
-
-export const newCalendarData = (issues: Array<Issue>, sheetData: Array<Array<Cell>>, changedPositions: Array<Position>) => {
-  return {
-    type: NEW_CALENDAR_DATA,
+    type: DRAG_AND_DROP,
     payload: {
       issues,
       sheetData,
