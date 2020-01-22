@@ -26,8 +26,7 @@ export class DataService {
     return CalendarDataCalculator.calculateInitialSheetData(
       users,
       issues,
-      query.startDate,
-      query.endDate
+      query
     );
 
     return testData();
@@ -138,8 +137,10 @@ const testData = () => {
   return CalendarDataCalculator.calculateInitialSheetData(
     users,
     [issue1, issue2],
-    startDate,
-    endDate
+    {
+      startDate: startDate,
+      endDate: endDate,
+    } as Query
   );
 };
 

@@ -8,37 +8,38 @@ import ListDataViewer from "./components/ListDataViewer";
 import { IssuePart } from "./domain/issue/issue-part";
 import DateViewer from "./components/DateViewer";
 import { Position } from "../shared/position";
-let randomColor = require("randomcolor");
+import { Query } from "./data-service";
+import randomColor from "randomcolor";
+import { COLOR_MAP } from "../shared/local-storage-constants";
 
 export class CalendarDataCalculator {
 
     public static calculateInitialSheetData(
         users: Array<User>,
         issues: Array<Issue>,
-        startDate: Date,
-        endDate: Date
+        query: Query
     ): CalendarData {
-        const dates = getDateRange(startDate, endDate);
+        const dates = getDateRange(query.startDate, query.endDate);
 
         const result = {
             users: users,
             dates: dates,
             issues: issues,
             sheetData: [],
-            colorMap: new Map<string, string | undefined>()
+            colorMap: this.getColorsFromLocalStorage()
         } as CalendarData;
 
-        const currentDateColumnIndex = getNumberOfDays(startDate, new Date());
+        const currentDateColumnIndex = getNumberOfDays(query.startDate, new Date());
         this.initializeToEmptyCells(result, currentDateColumnIndex);
 
         this.fillDateCells(result.dates, result.sheetData);
         this.fillUserCells(result.users, result.sheetData);
-        this.fillIssueCells(result, result.issues, startDate);
+        this.fillIssueCells(result, result.issues, query.startDate, query.showWithoutDueDate);
         return result;
     }
 
     public static recalculateChangedIssues(originalCalendarData: CalendarData, changedIssues: Array<Issue>): [CalendarData, Position[]] {
-        const result = {...originalCalendarData};
+        const result = { ...originalCalendarData };
         let changedPositions = [] as Position[];
 
         // remove original issue parts
@@ -55,7 +56,7 @@ export class CalendarDataCalculator {
                             valueChanged = true;
                         }
                     });
-    
+
                     indexesToRemove.reverse().forEach(indexToRemove => {
                         values.splice(indexToRemove, 1);
                     });
@@ -67,83 +68,82 @@ export class CalendarDataCalculator {
                         });
                     }
                 }
-
             }
         }
 
-        changedPositions = changedPositions.concat(this.fillIssueCells(result, changedIssues, result[0]));
+        changedPositions = changedPositions.concat(this.fillIssueCells(result, changedIssues, result[0], true));
         return [result, changedPositions];
     }
 
-    private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>, sheetStartDate: Date): Position[] {
+    private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>, sheetStartDate: Date, showWithoutDueDate: boolean): Position[] {
         const changedPositions = [] as Position[];
         issues.forEach((issue: Issue) => {
-            let startDate = issue.startDate ? issue.startDate : issue.created;
-            const endDate = issue.dueDate ? issue.dueDate : calendarData.dates[calendarData.dates.length - 1];
+            if (issue.dueDate || showWithoutDueDate) {
+                let tempStartDate = issue.startDate ? issue.startDate : issue.created;
 
-            if (startDate < sheetStartDate) {
-                startDate = sheetStartDate;
-            }
+                const startDate = tempStartDate < sheetStartDate ? sheetStartDate : tempStartDate;
+                const endDate = issue.dueDate ? issue.dueDate : calendarData.dates[calendarData.dates.length - 1];
 
-            const issueParts: IssuePart[] = getDateRange(startDate, endDate).map(
-                (_date, index, all) => {
-                    let color = calendarData.colorMap.get(issue.key);
+                const issueParts: IssuePart[] = getDateRange(startDate, endDate).map(
+                    (_date, index, all) => {
+                        let color = calendarData.colorMap.get(issue.project.key);
 
-                    if (!color) {
-                        color = randomColor({
-                            luminosity: "bright",
-                            format: "rgba",
-                            alpha: 0.8
-                        });
-                        calendarData.colorMap.set(issue.key, color);
+                        if (!color) {
+                            color = randomColor({
+                                luminosity: "bright",
+                                format: "rgba",
+                                alpha: 0.8
+                            });
+                            calendarData.colorMap.set(issue.project.key, color);
+                        }
+                        return new IssuePart(issue, index, all.length, color);
                     }
-                    return new IssuePart(issue, index, all.length, color);
-                }
-            );
-
-            let startDateIndex = calendarData.dates.findIndex(date =>
-                isSame(date, startDate)
-            );
-
-            let dueDateIndex = calendarData.dates.findIndex(date => 
-                isSame(date, endDate)
-            );
-
-            if (dueDateIndex !== -1) {
-                dueDateIndex = dueDateIndex + 1;
-            }
-
-            const dateCells = calendarData.dates.slice(startDateIndex, dueDateIndex);
-            const userIndex = calendarData.users.findIndex(
-                (user: User) => user.accountId === issue.assignee.accountId
-            );
-
-            if (userIndex === -1) {
-                throw new Error(
-                    "No users were found. Without users, issues cannot be displayed"
                 );
-            }
 
-            const row = userIndex + 1;
-            dateCells.forEach((_dateCell, idx) => {
-                const col = startDateIndex + idx + 1;
-                let cellValue = calendarData.sheetData[row][col].value;
+                const startDateIndex = calendarData.dates.findIndex(date =>
+                    isSame(date, startDate)
+                );
 
-                let dataCell = calendarData.sheetData[row][col] as Cell;
+                let dueDateIndex = calendarData.dates.findIndex(date =>
+                    isSame(date, endDate)
+                );
 
-                if (!cellValue) {
-                    cellValue = [];
+                if (dueDateIndex !== -1) {
+                    dueDateIndex = dueDateIndex + 1;
                 }
 
-                cellValue.push(issueParts[idx]);
-                this.addCell(dataCell, calendarData.sheetData);
-                changedPositions.push({
-                    row: row,
-                    col: col
-                });
-            });
-        });
+                const dateCells = calendarData.dates.slice(startDateIndex, dueDateIndex);
+                const userIndex = calendarData.users.findIndex(
+                    (user: User) => user.accountId === issue.assignee.accountId
+                );
 
+                if (userIndex === -1) {
+                    throw new Error(
+                        "No users were found. Without users, issues cannot be displayed"
+                    );
+                }
+
+                const row = userIndex + 1;
+                dateCells.forEach((_dateCell, idx) => {
+                    const col = startDateIndex + idx + 1;
+                    let cellValue = calendarData.sheetData[row][col].value;
+
+                    let dataCell = calendarData.sheetData[row][col] as Cell;
+
+                    if (!cellValue) {
+                        cellValue = [];
+                    }
+
+                    cellValue.push(issueParts[idx]);
+                    this.addCell(dataCell, calendarData.sheetData);
+                    changedPositions.push({
+                        row: row,
+                        col: col
+                    });
+                });
+            }
+        });
+        this.addColorsToLocalStorage(calendarData.colorMap);
         return changedPositions;
     }
 
@@ -183,7 +183,7 @@ export class CalendarDataCalculator {
             calendarData.sheetData[i] = [];
             for (let j = 0; j < calendarData.dates.length + 1; j++) {
                 const cellType: CellType = this.getCellType(j, currentDateColumnIndex);
-                let emptyCell;
+                let emptyCell: Cell;
                 if (i === 0 || j === 0) {
                     emptyCell = this.createCell(i, j, [], cellType, true, ListDataViewer);
                 } else {
@@ -231,5 +231,14 @@ export class CalendarDataCalculator {
 
     private static addCell(cell: Cell, sheetData: Cell[][]): void {
         sheetData[cell.row][cell.col] = cell;
+    }
+
+    private static addColorsToLocalStorage(colorMap: Map<string, string | undefined>): void {
+        localStorage.setItem(COLOR_MAP, JSON.stringify(Array.from(colorMap.entries())));
+    }
+
+    private static getColorsFromLocalStorage(): Map<string, string | undefined> {
+        const localStorageData = localStorage.getItem(COLOR_MAP);
+        return localStorageData ? new Map<string, string | undefined>(JSON.parse(localStorageData)) : new Map<string, string | undefined>();
     }
 }

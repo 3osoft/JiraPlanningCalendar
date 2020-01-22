@@ -81,7 +81,7 @@ const ListDataViewer = ({ cell }) => {
                               item.color
                            )}>
 
-                           {item.warnings.length > 0 ? <Tooltip items={item.warnings} /> : null}
+                           <Tooltip items={item.warnings} />
 
                            <div style={getListItemTextStyle()}>
                               {item.title}

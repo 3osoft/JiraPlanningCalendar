@@ -1,15 +1,18 @@
 .tooltip .tooltipText {
-   visibility: hidden;
-   background-color: #FFE380;
-   color: black;
-   text-align: center;
-   padding: 5px;
-   border-radius: 6px;
-   position: absolute;
-   z-index: 1;
- }
+  visibility: hidden;
+  background-color: #ffe380;
+  color: black;
+  text-align: center;
+  padding: 5px;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 1;
+}
 
- .tooltip:hover .tooltipText {
-   visibility: visible;
- }
- 
+.tooltip:hover .tooltipText {
+  visibility: visible;
+}
+
+.hiddenTooltip {
+  visibility: hidden;
+}
