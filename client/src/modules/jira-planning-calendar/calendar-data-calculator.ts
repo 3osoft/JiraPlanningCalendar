@@ -33,7 +33,7 @@ export class CalendarDataCalculator {
 
         this.fillDateCells(result.dates, result.sheetData);
         this.fillUserCells(result.users, result.sheetData);
-        this.fillIssueCells(result, result.issues);
+        this.fillIssueCells(result, result.issues, startDate);
         return result;
     }
 
@@ -44,9 +44,9 @@ export class CalendarDataCalculator {
         // remove original issue parts
         for (let i = 1; i < result.sheetData.length; i++) {
             for (let j = 1; j < result.sheetData[i].length; j++) {
-                let cell = result.sheetData[i][j];
-                let values = cell.value as IssuePart[];
-                let indexesToRemove = [] as number[];
+                const cell = result.sheetData[i][j];
+                const values = cell.value as IssuePart[];
+                const indexesToRemove = [] as number[];
                 if (values.length > 0) {
                     let valueChanged = false;
                     values.forEach((issuePart, index) => {
@@ -71,16 +71,19 @@ export class CalendarDataCalculator {
             }
         }
 
-        changedPositions = changedPositions.concat(this.fillIssueCells(result, changedIssues));
-
+        changedPositions = changedPositions.concat(this.fillIssueCells(result, changedIssues, result[0]));
         return [result, changedPositions];
     }
 
-    private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>): Position[] {
+    private static fillIssueCells(calendarData: CalendarData, issues: Array<Issue>, sheetStartDate: Date): Position[] {
         const changedPositions = [] as Position[];
         issues.forEach((issue: Issue) => {
-            const startDate = issue.startDate ? issue.startDate : issue.created;
+            let startDate = issue.startDate ? issue.startDate : issue.created;
             const endDate = issue.dueDate ? issue.dueDate : calendarData.dates[calendarData.dates.length - 1];
+
+            if (startDate < sheetStartDate) {
+                startDate = sheetStartDate;
+            }
 
             const issueParts: IssuePart[] = getDateRange(startDate, endDate).map(
                 (_date, index, all) => {
@@ -98,7 +101,7 @@ export class CalendarDataCalculator {
                 }
             );
 
-            const startDateIndex = calendarData.dates.findIndex(date =>
+            let startDateIndex = calendarData.dates.findIndex(date =>
                 isSame(date, startDate)
             );
 

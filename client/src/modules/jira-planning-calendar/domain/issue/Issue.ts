@@ -11,7 +11,6 @@ export class Issue {
   startDate: Date | undefined;
   dueDate: Date | undefined;
   url: string;
-  warnings: Array<string>;
 
   constructor(
     key: string,
@@ -21,7 +20,6 @@ export class Issue {
     created: Date,
     startDate: Date | undefined,
     dueDate: Date | undefined,
-    warnings: Array<string> = []
   ) {
     this.key = key;
     this.project = project;
@@ -31,6 +29,5 @@ export class Issue {
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.url = `${JIRA_BROWSE_URL}${key}`;
-    this.warnings = warnings;
   }
 }

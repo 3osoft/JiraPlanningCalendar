@@ -38,3 +38,13 @@ export const isSame = (date1: Date, date2: Date): boolean => {
     date1Moment.isSame(date2Moment, "day")
   );
 };
+
+export const calculateNumberOfDays = (startDate: Date, endDate: Date): number => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  
+  const startMoment = moment(start);
+  const endMoment = moment(end);
+
+  return startMoment.diff(endMoment, 'day');
+}

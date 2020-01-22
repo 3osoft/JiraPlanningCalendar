@@ -66,7 +66,8 @@ export class DataService {
       const startDate = moment(query.startDate).format("YYYY-MM-DD");
       const endDate = moment(query.endDate).format("YYYY-MM-DD");
 
-      const dateQuery = `cf[10015] <= ${endDate} and due >= ${startDate}`;
+      const dateQuery = `(cf[10015] is not null and cf[10015] <= ${endDate} and (due >= ${startDate} or due is null)) 
+      or (cf[10015] is null and created <= ${endDate} and (due >= ${startDate} or due is null))`;
       issuesQuery = dateQuery;
 
       if (query.issue) {
@@ -115,8 +116,7 @@ const testData = () => {
     users[0],
     new Date(),
     undefined,
-    new Date(new Date().setDate(new Date().getDate() + 2)),
-    ["Start date is not defined"]
+    new Date(new Date().setDate(new Date().getDate() + 2))
   );
   const issue2 = new Issue(
     "XAM-5777",

@@ -7,6 +7,7 @@ export class IssuePart {
    actualPart: number;
    totalParts: number;
    color: string | undefined;
+   warnings: Array<string>;
 
    get isStart(): boolean {
       return this.actualPart === 0;
@@ -30,6 +31,8 @@ export class IssuePart {
       this.actualPart = actualPart;
       this.totalParts = totalParts;     
       this.color = color 
+      // TODO validations
+      this.warnings = issue.startDate ? [] : ['Issue does not have start date.'];
    }
    
 }
